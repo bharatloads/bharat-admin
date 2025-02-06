@@ -8,10 +8,12 @@ import {
   Package,
   BarChart3,
   Coins,
+  Shield,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { USER_LEVELS, USER_ROLES } from "@/config/accessPolicies";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
@@ -45,10 +47,13 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
+import { useAccess } from "@/hooks/useAccess";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { admin, logout } = useAuth();
+  const { checkRouteAccess } = useAccess();
+  const isSuperAdmin = admin?.userLevel === USER_ROLES.SUPER_ADMIN;
 
   const handleLogout = () => {
     logout();
@@ -68,185 +73,237 @@ export function DashboardSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
+        {/* Admin Users Group - Only visible to super admins */}
+        {isSuperAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Administration</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname === "/dashboard/admin-users"}
+                    tooltip="Admin Users"
+                  >
+                    <Link href="/dashboard/admin-users">
+                      <Shield className="h-4 w-4" />
+                      <span>Admin Users</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
+
         {/* Users Group */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Users</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* All Users */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/users"}
-                  tooltip="All Users"
-                >
-                  <Link href="/dashboard/users">
-                    <Users className="h-4 w-4" />
-                    <span>All Users</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+        {checkRouteAccess("/dashboard/users") && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Users</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {checkRouteAccess("/dashboard/users") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/users"}
+                      tooltip="All Users"
+                    >
+                      <Link href="/dashboard/users">
+                        <Users className="h-4 w-4" />
+                        <span>All Users</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
 
-              {/* Truckers */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/users/truckers"}
-                  tooltip="Truckers"
-                >
-                  <Link href="/dashboard/users/truckers">
-                    <Truck className="h-4 w-4" />
-                    <span>Truckers</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                {/* Truckers */}
+                {checkRouteAccess("/dashboard/users/truckers") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/users/truckers"}
+                      tooltip="Truckers"
+                    >
+                      <Link href="/dashboard/users/truckers">
+                        <Truck className="h-4 w-4" />
+                        <span>Truckers</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
 
-              {/* Transporters */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/users/transporters"}
-                  tooltip="Transporters"
-                >
-                  <Link href="/dashboard/users/transporters">
-                    <Building2 className="h-4 w-4" />
-                    <span>Transporters</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                {/* Transporters */}
+                {checkRouteAccess("/dashboard/users/transporters") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/users/transporters"}
+                      tooltip="Transporters"
+                    >
+                      <Link href="/dashboard/users/transporters">
+                        <Building2 className="h-4 w-4" />
+                        <span>Transporters</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Loads Group */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Loads</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* All Loads */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/loads"}
-                  tooltip="All Loads"
-                >
-                  <Link href="/dashboard/loads">
-                    <Package className="h-4 w-4" />
-                    <span>All Loads</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+        {checkRouteAccess("/dashboard/loads") && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Loads</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {/* All Loads */}
+                {checkRouteAccess("/dashboard/loads") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/loads"}
+                      tooltip="All Loads"
+                    >
+                      <Link href="/dashboard/loads">
+                        <Package className="h-4 w-4" />
+                        <span>All Loads</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
 
-              {/* Load Search */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/loads/search"}
-                  tooltip="Search Loads"
-                >
-                  <Link href="/dashboard/loads/search">
-                    <Search className="h-4 w-4" />
-                    <span>Load Search</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                {/* Load Search */}
+                {checkRouteAccess("/dashboard/loads/search") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/loads/search"}
+                      tooltip="Search Loads"
+                    >
+                      <Link href="/dashboard/loads/search">
+                        <Search className="h-4 w-4" />
+                        <span>Load Search</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Trucks Group */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Trucks</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* All Trucks */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/trucks"}
-                  tooltip="All Trucks"
-                >
-                  <Link href="/dashboard/trucks">
-                    <Truck className="h-4 w-4" />
-                    <span>All Trucks</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+        {checkRouteAccess("/dashboard/trucks") && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Trucks</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {/* All Trucks */}
+                {checkRouteAccess("/dashboard/trucks") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/trucks"}
+                      tooltip="All Trucks"
+                    >
+                      <Link href="/dashboard/trucks">
+                        <Truck className="h-4 w-4" />
+                        <span>All Trucks</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
 
-              {/* Truck Search */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/trucks/search"}
-                  tooltip="Search Trucks"
-                >
-                  <Link href="/dashboard/trucks/search">
-                    <Search className="h-4 w-4" />
-                    <span>Truck Search</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                {/* Truck Search */}
+                {checkRouteAccess("/dashboard/trucks/search") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/trucks/search"}
+                      tooltip="Search Trucks"
+                    >
+                      <Link href="/dashboard/trucks/search">
+                        <Search className="h-4 w-4" />
+                        <span>Truck Search</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Bids Group */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Bids</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* All Bids */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/bids"}
-                  tooltip="All Bids"
-                >
-                  <Link href="/dashboard/bids">
-                    <Coins className="h-4 w-4" />
-                    <span>All Bids</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+        {checkRouteAccess("/dashboard/bids") && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Bids</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {/* All Bids */}
+                {checkRouteAccess("/dashboard/bids") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/bids"}
+                      tooltip="All Bids"
+                    >
+                      <Link href="/dashboard/bids">
+                        <Coins className="h-4 w-4" />
+                        <span>All Bids</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
 
-              {/* Bid Search */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/bids/search"}
-                  tooltip="Search Bids"
-                >
-                  <Link href="/dashboard/bids/search">
-                    <Search className="h-4 w-4" />
-                    <span>Bid Search</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+                {/* Bid Search */}
+                {checkRouteAccess("/dashboard/bids/search") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/bids/search"}
+                      tooltip="Search Bids"
+                    >
+                      <Link href="/dashboard/bids/search">
+                        <Search className="h-4 w-4" />
+                        <span>Bid Search</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         {/* Statistics Group */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Statistics</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {/* Overview */}
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname === "/dashboard/statistics"}
-                  tooltip="Statistics Overview"
-                >
-                  <Link href="/dashboard/statistics">
-                    <BarChart3 className="h-4 w-4" />
-                    <span>Overview</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {checkRouteAccess("/dashboard/statistics") && (
+          <SidebarGroup>
+            <SidebarGroupLabel>Statistics</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {/* Overview */}
+                {checkRouteAccess("/dashboard/statistics") && (
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === "/dashboard/statistics"}
+                      tooltip="Statistics Overview"
+                    >
+                      <Link href="/dashboard/statistics">
+                        <BarChart3 className="h-4 w-4" />
+                        <span>Overview</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       {/* User Profile Section */}
@@ -262,7 +319,9 @@ export function DashboardSidebar() {
               </Avatar>
               <div className="flex-1 text-left">
                 <p className="text-sm font-medium">{admin?.username}</p>
-                <p className="text-xs text-muted-foreground">{admin?.phone}</p>
+                <p className="text-xs text-muted-foreground">
+                  {admin?.userLevel && USER_LEVELS[admin.userLevel]}
+                </p>
               </div>
             </button>
           </DialogTrigger>

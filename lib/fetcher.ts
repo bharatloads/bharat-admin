@@ -1,3 +1,5 @@
+import axios from "axios";
+
 type FetcherOptions = {
   method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,8 +16,7 @@ export class ApiError extends Error {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function fetcher<T = any>(
+export async function fetcher<T>(
   url: string,
   options: FetcherOptions = {}
 ): Promise<T> {
@@ -41,32 +42,23 @@ export async function fetcher<T = any>(
   }
 
   try {
-    const response = await fetch(fullUrl, {
+    const response = await axios({
       method,
+      url: fullUrl,
       headers: requestHeaders,
-      body: body ? JSON.stringify(body) : undefined,
+      data: JSON.stringify(body),
     });
 
-    // Parse the response
-    const data = await response.json();
-
-    // Handle error responses
-    if (!response.ok) {
+    return response.data as T;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
       throw new ApiError(
-        data.message || "An error occurred",
-        response.status,
-        data
+        error.response?.data?.message || "An error occurred",
+        error.response?.status || 500,
+        error.response?.data
       );
     }
 
-    return data as T;
-  } catch (error) {
-    if (error instanceof ApiError) {
-      // If it's already an ApiError, rethrow it
-      throw error;
-    }
-
-    // If it's a network error or other type of error
     throw new ApiError(
       error instanceof Error ? error.message : "An error occurred",
       500

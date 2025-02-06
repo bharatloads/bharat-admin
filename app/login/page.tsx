@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+
 interface ApiError {
   message: string;
 }
@@ -17,12 +19,14 @@ interface AdminResponse {
   admin?: {
     username: string;
     phone: string;
+    userLevel: number;
   };
 }
 
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     username: "",
     password: "",
@@ -30,16 +34,18 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // If already authenticated, redirect to dashboard
+    if (isAuthenticated) {
+      router.replace("/dashboard");
+      return;
+    }
+
     // Check if we're coming back from a failed verification
     const storedUsername = sessionStorage.getItem("adminUsername");
     if (storedUsername) {
-      console.log(
-        "Found stored username, redirecting to verify:",
-        storedUsername
-      );
       router.replace("/login/verify");
     }
-  }, [router]);
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,15 +114,6 @@ export default function LoginPage() {
         duration={1}
         repeatDelay={0.5}
         className="[mask-image:radial-gradient(600px_circle_at_center,white,transparent)] inset-x-0 inset-y-[-30%] h-[160%] skew-y-12"
-      />
-      <AnimatedGridPattern
-        numSquares={30}
-        maxOpacity={0.2}
-        duration={3}
-        repeatDelay={1}
-        width={30}
-        height={30}
-        className="[mask-image:radial-gradient(500px_circle_at_center,white,transparent)] inset-x-0 inset-y-[-30%] h-[180%] -skew-y-12"
       />
 
       {/* Card */}

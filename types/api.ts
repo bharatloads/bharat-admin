@@ -51,3 +51,157 @@ export interface ApiErrorResponse {
   status: number;
   data?: Record<string, unknown>;
 }
+
+export interface GetTrucksParams {
+  page: number;
+  limit: number;
+  search?: string;
+  phone?: string;
+  truckNumber?: string;
+  truckType?: string;
+  isRCVerified?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface TruckOwner {
+  _id: string;
+  name: string;
+  mobile: {
+    countryCode: string;
+    phone: string;
+  };
+  companyName?: string;
+  companyLocation?: string;
+}
+
+export interface Truck {
+  _id: string;
+  truckOwner: TruckOwner;
+  truckNumber: string;
+  truckLocation: {
+    placeName: string;
+    coordinates: [number, number];
+  };
+  truckType: string;
+  isRCVerified: boolean;
+  bids: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetTrucksResponse {
+  trucks: Truck[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  };
+  stats: {
+    totalTrucks: number;
+    verifiedTrucks: number;
+    pendingVerification: number;
+  };
+}
+
+export interface Bid {
+  _id: string;
+  bidBy: {
+    _id: string;
+    name: string;
+    mobile: {
+      countryCode: string;
+      phone: string;
+    };
+    companyName?: string;
+  };
+  biddedAmount: number;
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  createdAt: string;
+}
+
+export interface GetTruckByIdResponse {
+  success: boolean;
+  truck: Truck & {
+    RCImage: string;
+    RCVerificationStatus: "PENDING" | "APPROVED" | "REJECTED";
+    truckCapacity: number;
+    vehicleBodyType: string;
+    truckBodyType: string;
+    truckTyre: number;
+    bids: Bid[];
+  };
+}
+
+export interface LoadTransporter {
+  _id: string;
+  name: string;
+  mobile: {
+    countryCode: string;
+    phone: string;
+  };
+  companyName?: string;
+  companyLocation?: string;
+}
+
+export interface Load {
+  _id: string;
+  transporterId: LoadTransporter;
+  materialType: string;
+  source: {
+    placeName: string;
+    coordinates: [number, number];
+  };
+  destination: {
+    placeName: string;
+    coordinates: [number, number];
+  };
+  offeredAmount: {
+    total: number;
+    advanceAmount: number;
+    dieselAmount: number;
+  };
+  bids: string[];
+  isActive: boolean | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetLoadsParams {
+  page: number;
+  limit: number;
+  search?: string;
+  phone?: string;
+  source?: string;
+  destination?: string;
+  materialType?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface GetLoadsResponse {
+  loads: Load[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  };
+  stats: {
+    totalLoads: number;
+    activeLoads: number;
+    completedLoads: number;
+  };
+}
+
+export interface GetLoadByIdResponse {
+  success: boolean;
+  load: Load & {
+    bids: Bid[];
+  };
+}

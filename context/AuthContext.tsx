@@ -9,11 +9,13 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { UserRole } from "@/config/accessPolicies";
 
 interface Admin {
   id: string;
   username: string;
   phone: string;
+  userLevel: UserRole;
 }
 
 interface AuthContextType {
@@ -116,6 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // You might want to show a loading spinner here
     return null;
   }
+  console.log(admin);
 
   return (
     <AuthContext.Provider

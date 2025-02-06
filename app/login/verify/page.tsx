@@ -26,28 +26,20 @@ export default function VerifyPage() {
   const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log("VerifyPage mounted, checking auth state:", {
-      isAuthenticated,
-    });
-
     // If already authenticated, redirect to dashboard
     if (isAuthenticated) {
-      console.log("User is authenticated, redirecting to dashboard");
       router.replace("/dashboard");
       return;
     }
 
     // Get username from session storage
     const storedUsername = sessionStorage.getItem("adminUsername");
-    console.log("Stored username from session:", storedUsername);
-
     if (!storedUsername) {
-      console.log("No username found, redirecting to login");
       router.replace("/login");
       return;
     }
     setUsername(storedUsername);
-  }, [router, isAuthenticated]);
+  }, [isAuthenticated, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,15 +118,6 @@ export default function VerifyPage() {
         duration={4}
         repeatDelay={0.5}
         className="[mask-image:radial-gradient(600px_circle_at_center,white,transparent)] inset-x-0 inset-y-[-30%] h-[160%] skew-y-12"
-      />
-      <AnimatedGridPattern
-        numSquares={30}
-        maxOpacity={0.2}
-        duration={3}
-        repeatDelay={1}
-        width={30}
-        height={30}
-        className="[mask-image:radial-gradient(500px_circle_at_center,white,transparent)] inset-x-0 inset-y-[-30%] h-[180%] -skew-y-12"
       />
 
       {/* Card */}
