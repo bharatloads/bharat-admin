@@ -109,6 +109,7 @@ export interface GetTrucksResponse {
 
 export interface Bid {
   _id: string;
+  bidType: "LOAD_BID" | "TRUCK_REQUEST";
   bidBy: {
     _id: string;
     name: string;
@@ -118,8 +119,45 @@ export interface Bid {
     };
     companyName?: string;
   };
-  biddedAmount: number;
+  offeredTo: {
+    _id: string;
+    name: string;
+    mobile: {
+      countryCode: string;
+      phone: string;
+    };
+    companyName?: string;
+  };
+  loadId?: {
+    materialType: string;
+    source: {
+      placeName: string;
+      coordinates: [number, number];
+    };
+    destination: {
+      placeName: string;
+      coordinates: [number, number];
+    };
+    offeredAmount: {
+      total: number;
+      advanceAmount: number;
+      dieselAmount: number;
+    };
+  };
+  truckId?: {
+    truckNumber: string;
+    truckLocation: {
+      placeName: string;
+      coordinates: [number, number];
+    };
+    truckType: string;
+  };
   status: "PENDING" | "ACCEPTED" | "REJECTED";
+  biddedAmount: {
+    total: number;
+    advanceAmount: number;
+    dieselAmount: number;
+  };
   createdAt: string;
 }
 
@@ -203,5 +241,34 @@ export interface GetLoadByIdResponse {
   success: boolean;
   load: Load & {
     bids: Bid[];
+  };
+}
+
+export interface GetBidsParams {
+  page: number;
+  limit: number;
+  search?: string;
+  phone?: string;
+  bidType?: string;
+  status?: string;
+  sortBy?: string;
+  sortOrder?: "asc" | "desc";
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface GetBidsResponse {
+  bids: Bid[];
+  pagination: {
+    total: number;
+    page: number;
+    limit: number;
+    hasMore: boolean;
+  };
+  stats: {
+    totalBids: number;
+    pendingBids: number;
+    acceptedBids: number;
+    rejectedBids: number;
   };
 }

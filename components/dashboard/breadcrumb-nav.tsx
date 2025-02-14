@@ -29,21 +29,24 @@ export function BreadcrumbNav() {
 
   return (
     <nav className="flex items-center space-x-1 text-sm text-muted-foreground">
-      {breadcrumbs.map((crumb, index) => (
-        <div key={crumb.href} className="flex items-center">
-          {index > 0 && <ChevronRight className="h-4 w-4" />}
-          <Link
-            href={crumb.href}
-            className={`px-2 py-1 hover:text-foreground ${
-              index === breadcrumbs.length - 1
-                ? "text-foreground font-medium"
-                : ""
-            }`}
-          >
-            {crumb.label}
-          </Link>
-        </div>
-      ))}
+      {breadcrumbs.map(
+        (crumb, index) =>
+          crumb && (
+            <div key={crumb.href} className="flex items-center">
+              {index > 0 && <ChevronRight className="h-4 w-4" />}
+              <Link
+                href={crumb.href}
+                className={`px-2 py-1 hover:text-foreground ${
+                  index === breadcrumbs.length - 1
+                    ? "text-foreground font-medium"
+                    : ""
+                }`}
+              >
+                {crumb.label}
+              </Link>
+            </div>
+          )
+      )}
     </nav>
   );
 }

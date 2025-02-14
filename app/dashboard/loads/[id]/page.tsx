@@ -265,7 +265,7 @@ export default function LoadDetailsPage() {
                           </p>
                         </div>
                       </TableCell>
-                      <TableCell>₹{bid.biddedAmount}</TableCell>
+                      <TableCell>₹{bid.biddedAmount.total}</TableCell>
                       <TableCell>
                         <Badge
                           variant={

@@ -47,6 +47,8 @@ import { Bid, GetTruckByIdResponse } from "@/types/api";
 import { fetcher, ApiError } from "@/lib/fetcher";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
+import { EntityLogs } from "@/components/entity-logs";
+
 export default function TruckDetailsPage() {
   const params = useParams();
   const router = useRouter();
@@ -361,7 +363,7 @@ export default function TruckDetailsPage() {
                           </p>
                         </div>
                       </TableCell>
-                      <TableCell>₹{bid.biddedAmount}</TableCell>
+                      <TableCell>₹{bid.biddedAmount.total}</TableCell>
                       <TableCell>
                         <Badge
                           variant={
@@ -384,6 +386,11 @@ export default function TruckDetailsPage() {
               </TableBody>
             </Table>
           </CardContent>
+        </Card>
+
+        {/* Activity Logs */}
+        <Card className="md:col-span-2">
+          <EntityLogs entityType="TRUCK" entityId={truck._id} />
         </Card>
       </div>
     </div>

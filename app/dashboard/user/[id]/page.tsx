@@ -15,6 +15,7 @@ import {
   Phone,
   User as UserIcon,
 } from "lucide-react";
+import { EntityLogs } from "@/components/entity-logs";
 
 export default function UserDetailsPage() {
   const { id } = useParams();
@@ -177,6 +178,9 @@ export default function UserDetailsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Activity Logs */}
+      <EntityLogs entityType="USER" entityId={user._id} />
     </div>
   );
 }
