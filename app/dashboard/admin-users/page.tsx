@@ -5,6 +5,7 @@ import { Users, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { useAccess } from "@/hooks/useAccess";
 import { USER_ROLES, USER_LEVELS } from "@/config/accessPolicies";
 import { fetcher } from "@/lib/fetcher";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,7 @@ export default function AdminUsersPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { admin, token } = useAuth();
+  const { checkFeatureAccess } = useAccess();
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<AdminResponse | null>(null);
   const [selectedAdmin, setSelectedAdmin] = useState<AdminUser | null>(null);
@@ -69,8 +71,9 @@ export default function AdminUsersPage() {
     userLevel: "1",
   });
 
-  // Check if current user is super admin
+  // Check if current user is super admin and has create permission
   const isSuperAdmin = admin?.userLevel === USER_ROLES.SUPER_ADMIN;
+  const canCreateUser = checkFeatureAccess("CREATE_USER");
 
   useEffect(() => {
     if (!isSuperAdmin) {
@@ -178,83 +181,88 @@ export default function AdminUsersPage() {
       {/* Header with Create Button */}
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Admin Users</h1>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Create Admin
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <form onSubmit={handleCreateSubmit}>
-              <DialogHeader>
-                <DialogTitle>Create Admin User</DialogTitle>
-                <DialogDescription>
-                  Create a new admin user with specific permissions.
-                </DialogDescription>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="username">Username</Label>
-                  <Input
-                    id="username"
-                    value={formData.username}
-                    onChange={(e) =>
-                      setFormData({ ...formData, username: e.target.value })
-                    }
-                    required
-                  />
+        {canCreateUser && (
+          <Dialog
+            open={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+          >
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Create Admin
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <form onSubmit={handleCreateSubmit}>
+                <DialogHeader>
+                  <DialogTitle>Create Admin User</DialogTitle>
+                  <DialogDescription>
+                    Create a new admin user with specific permissions.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="username">Username</Label>
+                    <Input
+                      id="username"
+                      value={formData.username}
+                      onChange={(e) =>
+                        setFormData({ ...formData, username: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="phone">Phone</Label>
+                    <Input
+                      id="phone"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) =>
+                        setFormData({ ...formData, password: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="userLevel">User Level</Label>
+                    <Select
+                      value={formData.userLevel}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, userLevel: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select user level" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(USER_LEVELS).map(([key, value]) => (
+                          <SelectItem key={key} value={key}>
+                            {value}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="phone">Phone</Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) =>
-                      setFormData({ ...formData, phone: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="userLevel">User Level</Label>
-                  <Select
-                    value={formData.userLevel}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, userLevel: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select user level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(USER_LEVELS).map(([key, value]) => (
-                        <SelectItem key={key} value={key}>
-                          {value}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Create Admin</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+                <DialogFooter>
+                  <Button type="submit">Create Admin</Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Stats Card */}
