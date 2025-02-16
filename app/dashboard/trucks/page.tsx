@@ -26,6 +26,53 @@ import {
 } from "@/types/api";
 import { fetcher, ApiError } from "@/lib/fetcher";
 import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+
+const getTimeStatus = (expiresAt: string) => {
+  const now = new Date();
+  const expiryDate = new Date(expiresAt);
+  const diffInMs = expiryDate.getTime() - now.getTime();
+  const diffInHours = Math.abs(Math.floor(diffInMs / (1000 * 60 * 60)));
+  const diffInMinutes = Math.abs(
+    Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60))
+  );
+
+  if (diffInMs < 0) {
+    // Expired
+    if (diffInHours >= 24) {
+      const days = Math.floor(diffInHours / 24);
+      return `Expired ${days} ${days === 1 ? "day" : "days"} ago`;
+    }
+    if (diffInHours > 0) {
+      return `Expired ${diffInHours} ${diffInHours === 1 ? "hour" : "hours"}${
+        diffInMinutes > 0
+          ? ` ${diffInMinutes} ${diffInMinutes === 1 ? "min" : "mins"}`
+          : ""
+      } ago`;
+    }
+    return `Expired ${diffInMinutes} ${
+      diffInMinutes === 1 ? "min" : "mins"
+    } ago`;
+  } else {
+    // Not expired
+    if (diffInHours >= 24) {
+      const days = Math.floor(diffInHours / 24);
+      return `Expires in ${days} ${days === 1 ? "day" : "days"}`;
+    }
+    if (diffInHours > 0) {
+      return `Expires in ${diffInHours} ${
+        diffInHours === 1 ? "hour" : "hours"
+      }${
+        diffInMinutes > 0
+          ? ` ${diffInMinutes} ${diffInMinutes === 1 ? "min" : "mins"}`
+          : ""
+      }`;
+    }
+    return `Expires in ${diffInMinutes} ${
+      diffInMinutes === 1 ? "min" : "mins"
+    }`;
+  }
+};
 
 export default function TrucksPage() {
   const router = useRouter();
@@ -79,53 +126,53 @@ export default function TrucksPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Stats Section */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-lg border bg-card p-6">
-          <div className="flex items-center gap-2">
-            <Truck className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-medium">Total Trucks</h3>
+      <div className='grid gap-4 md:grid-cols-3'>
+        <div className='rounded-lg border bg-card p-6'>
+          <div className='flex items-center gap-2'>
+            <Truck className='h-4 w-4 text-muted-foreground' />
+            <h3 className='text-sm font-medium'>Total Trucks</h3>
           </div>
-          <div className="mt-4">
+          <div className='mt-4'>
             {isLoading ? (
-              <Skeleton className="h-7 w-20" />
+              <Skeleton className='h-7 w-20' />
             ) : (
               <NumberTicker
                 value={data?.stats.totalTrucks || 0}
-                className="text-2xl font-bold"
+                className='text-2xl font-bold'
               />
             )}
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-6">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-medium">Verified Trucks</h3>
+        <div className='rounded-lg border bg-card p-6'>
+          <div className='flex items-center gap-2'>
+            <CheckCircle className='h-4 w-4 text-muted-foreground' />
+            <h3 className='text-sm font-medium'>Verified Trucks</h3>
           </div>
-          <div className="mt-4">
+          <div className='mt-4'>
             {isLoading ? (
-              <Skeleton className="h-7 w-20" />
+              <Skeleton className='h-7 w-20' />
             ) : (
               <NumberTicker
                 value={data?.stats.verifiedTrucks || 0}
-                className="text-2xl font-bold"
+                className='text-2xl font-bold'
               />
             )}
           </div>
         </div>
-        <div className="rounded-lg border bg-card p-6">
-          <div className="flex items-center gap-2">
-            <XCircle className="h-4 w-4 text-muted-foreground" />
-            <h3 className="text-sm font-medium">Pending Verification</h3>
+        <div className='rounded-lg border bg-card p-6'>
+          <div className='flex items-center gap-2'>
+            <XCircle className='h-4 w-4 text-muted-foreground' />
+            <h3 className='text-sm font-medium'>Pending Verification</h3>
           </div>
-          <div className="mt-4">
+          <div className='mt-4'>
             {isLoading ? (
-              <Skeleton className="h-7 w-20" />
+              <Skeleton className='h-7 w-20' />
             ) : (
               <NumberTicker
                 value={data?.stats.pendingVerification || 0}
-                className="text-2xl font-bold"
+                className='text-2xl font-bold'
               />
             )}
           </div>
@@ -133,7 +180,7 @@ export default function TrucksPage() {
       </div>
 
       {/* Trucks Table */}
-      <div className="rounded-lg border">
+      <div className='rounded-lg border'>
         <Table>
           <TableHeader>
             <TableRow>
@@ -142,7 +189,8 @@ export default function TrucksPage() {
               <TableHead>Location</TableHead>
               <TableHead>Total Bids</TableHead>
               <TableHead>Type</TableHead>
-              <TableHead>Status</TableHead>
+              {/* <TableHead>Status</TableHead> */}
+              <TableHead>Expires</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -152,25 +200,28 @@ export default function TrucksPage() {
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <Skeleton className="h-4 w-[150px]" />
+                    <Skeleton className='h-4 w-[150px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className='h-4 w-[100px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[120px]" />
+                    <Skeleton className='h-4 w-[120px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[60px]" />
+                    <Skeleton className='h-4 w-[60px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[80px]" />
+                    <Skeleton className='h-4 w-[80px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[80px]" />
+                    <Skeleton className='h-4 w-[80px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-8 w-[100px]" />
+                    <Skeleton className='h-4 w-[100px]' />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className='h-8 w-[100px]' />
                   </TableCell>
                 </TableRow>
               ))
@@ -180,7 +231,7 @@ export default function TrucksPage() {
                   <TableCell>
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className="cursor-help">
+                        <span className='cursor-help'>
                           {truck.truckOwner?.name || "N/A"}
                         </span>
                       </TooltipTrigger>
@@ -196,27 +247,37 @@ export default function TrucksPage() {
                   <TableCell>{truck.truckLocation.placeName}</TableCell>
                   <TableCell>{truck.bids.length}</TableCell>
                   <TableCell>{truck.truckType}</TableCell>
-                  <TableCell>
+                  {/* <TableCell>
                     <span
                       className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${
                         truck.isRCVerified
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
-                      }`}
-                    >
+                      }`}>
                       {truck.isRCVerified ? (
-                        <CheckCircle className="h-4 w-4 text-green-700" />
+                        <CheckCircle className='h-4 w-4 text-green-700' />
                       ) : (
-                        <XCircle className="h-4 w-4 text-red-700" />
+                        <XCircle className='h-4 w-4 text-red-700' />
                       )}
                     </span>
+                  </TableCell> */}
+                  <TableCell>
+                    {new Date(truck.expiresAt).getTime() <
+                    new Date().getTime() ? (
+                      <Badge variant='destructive'>
+                        {getTimeStatus(truck.expiresAt)}
+                      </Badge>
+                    ) : (
+                      <Badge variant='success'>
+                        {getTimeStatus(truck.expiresAt)}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewTruck(truck._id)}
-                    >
+                      variant='outline'
+                      size='sm'
+                      onClick={() => handleViewTruck(truck._id)}>
                       View Details
                     </Button>
                   </TableCell>
@@ -224,7 +285,7 @@ export default function TrucksPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">
+                <TableCell colSpan={7} className='text-center'>
                   No trucks found
                 </TableCell>
               </TableRow>
@@ -234,8 +295,8 @@ export default function TrucksPage() {
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+      <div className='flex items-center justify-between'>
+        <p className='text-sm text-muted-foreground'>
           {data?.pagination.total
             ? `Showing ${(params.page - 1) * params.limit + 1} to ${Math.min(
                 params.page * params.limit,
@@ -243,25 +304,23 @@ export default function TrucksPage() {
               )} of ${data.pagination.total} trucks`
             : "No trucks found"}
         </p>
-        <div className="flex gap-2">
+        <div className='flex gap-2'>
           <Button
-            variant="outline"
-            size="sm"
+            variant='outline'
+            size='sm'
             onClick={() =>
               setParams((p: GetTrucksParams) => ({ ...p, page: p.page - 1 }))
             }
-            disabled={params.page <= 1 || isLoading}
-          >
+            disabled={params.page <= 1 || isLoading}>
             Previous
           </Button>
           <Button
-            variant="outline"
-            size="sm"
+            variant='outline'
+            size='sm'
             onClick={() =>
               setParams((p: GetTrucksParams) => ({ ...p, page: p.page + 1 }))
             }
-            disabled={!data || !data.pagination.hasMore || isLoading}
-          >
+            disabled={!data || !data.pagination.hasMore || isLoading}>
             Next
           </Button>
         </div>

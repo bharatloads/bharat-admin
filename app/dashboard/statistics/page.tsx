@@ -6,13 +6,16 @@ import {
   AreaChart,
   CartesianGrid,
   XAxis,
+  YAxis,
+  Tooltip,
   Pie,
   PieChart,
   Bar,
   BarChart,
-  YAxis,
+  ResponsiveContainer,
+  Legend,
 } from "recharts";
-import { Users, Truck, Package } from "lucide-react";
+import { Users, Truck, Package, IndianRupee } from "lucide-react";
 
 import {
   Card,
@@ -50,6 +53,7 @@ interface StatsResponse {
         count: number;
         truckers: number;
         transporters: number;
+        verified: number;
       }>;
       trucks: Array<{
         _id: string;
@@ -62,6 +66,15 @@ interface StatsResponse {
         count: number;
         active: number;
         totalAmount: number;
+        avgAmount: number;
+      }>;
+      bids: Array<{
+        _id: string;
+        count: number;
+        accepted: number;
+        rejected: number;
+        totalAmount: number;
+        avgAmount: number;
       }>;
     };
     overallStats: {
@@ -82,15 +95,32 @@ interface StatsResponse {
         totalAmount: number;
         avgAmount: number;
       };
+      bids: {
+        total: number;
+        accepted: number;
+        rejected: number;
+        totalAmount: number;
+        avgAmount: number;
+      };
     };
     distributions: {
       materialTypes: Array<{
         _id: string;
         count: number;
+        totalAmount: number;
       }>;
       truckTypes: Array<{
         _id: string;
         count: number;
+        verified: number;
+      }>;
+      popularRoutes: Array<{
+        _id: {
+          source: string;
+          destination: string;
+        };
+        count: number;
+        avgAmount: number;
       }>;
     };
   };
@@ -116,6 +146,10 @@ const chartConfig = {
   loads: {
     label: "Loads",
     color: "hsl(var(--chart-5))",
+  },
+  bids: {
+    label: "Bids",
+    color: "hsl(var(--chart-6))",
   },
 } satisfies ChartConfig;
 
@@ -181,39 +215,21 @@ export default function StatsPage() {
       </div>
 
       {/* Overview Cards */}
-      <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
+      <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-4'>
         {isLoading ? (
           <>
-            <Card>
-              <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                <Skeleton className='h-4 w-[100px]' />
-                <Skeleton className='h-4 w-4' />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className='h-8 w-[120px]' />
-                <Skeleton className='mt-2 h-4 w-[80px]' />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                <Skeleton className='h-4 w-[100px]' />
-                <Skeleton className='h-4 w-4' />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className='h-8 w-[120px]' />
-                <Skeleton className='mt-2 h-4 w-[80px]' />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                <Skeleton className='h-4 w-[100px]' />
-                <Skeleton className='h-4 w-4' />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className='h-8 w-[120px]' />
-                <Skeleton className='mt-2 h-4 w-[80px]' />
-              </CardContent>
-            </Card>
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i}>
+                <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                  <Skeleton className='h-4 w-[100px]' />
+                  <Skeleton className='h-4 w-4' />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className='h-8 w-[120px]' />
+                  <Skeleton className='mt-2 h-4 w-[80px]' />
+                </CardContent>
+              </Card>
+            ))}
           </>
         ) : (
           <>
@@ -276,6 +292,25 @@ export default function StatsPage() {
                 </p>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Total Revenue
+                </CardTitle>
+                <IndianRupee className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  {formatCurrency(stats?.overallStats.loads.totalAmount || 0)}
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  Avg.{" "}
+                  {formatCurrency(stats?.overallStats.loads.avgAmount || 0)} per
+                  load
+                </p>
+              </CardContent>
+            </Card>
           </>
         )}
       </div>
@@ -289,94 +324,112 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className=' h-[300px]'>
+              <div className='h-[300px]'>
                 <Skeleton className='h-full w-full' />
               </div>
             ) : (
-              <ChartContainer config={chartConfig} className=' h-[300px]'>
-                <AreaChart
-                  data={stats?.dailyStats.users.map((day) => ({
-                    date: day._id,
-                    truckers: day.truckers,
-                    transporters: day.transporters,
-                  }))}>
-                  <defs>
-                    <linearGradient
-                      id='colorTruckers'
-                      x1='0'
-                      y1='0'
-                      x2='0'
-                      y2='1'>
-                      <stop
-                        offset='5%'
-                        stopColor='hsl(var(--chart-2))'
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset='95%'
-                        stopColor='hsl(var(--chart-2))'
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                    <linearGradient
-                      id='colorTransporters'
-                      x1='0'
-                      y1='0'
-                      x2='0'
-                      y2='1'>
-                      <stop
-                        offset='5%'
-                        stopColor='hsl(var(--chart-3))'
-                        stopOpacity={0.8}
-                      />
-                      <stop
-                        offset='95%'
-                        stopColor='hsl(var(--chart-3))'
-                        stopOpacity={0.1}
-                      />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray='3 3' />
-                  <XAxis
-                    dataKey='date'
-                    tickFormatter={(value) => {
-                      const date = new Date(value);
-                      return date.toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      });
-                    }}
-                  />
-                  <YAxis />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        labelFormatter={(value) => {
-                          return new Date(value).toLocaleDateString("en-US", {
-                            month: "long",
-                            day: "numeric",
-                            year: "numeric",
-                          });
-                        }}
-                      />
-                    }
-                  />
-                  <Area
-                    type='monotone'
-                    dataKey='truckers'
-                    stackId='1'
-                    stroke='hsl(var(--chart-2))'
-                    fill='url(#colorTruckers)'
-                  />
-                  <Area
-                    type='monotone'
-                    dataKey='transporters'
-                    stackId='1'
-                    stroke='hsl(var(--chart-3))'
-                    fill='url(#colorTransporters)'
-                  />
-                  <ChartLegend content={<ChartLegendContent />} />
-                </AreaChart>
+              <ChartContainer config={chartConfig} className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <AreaChart
+                    data={stats?.dailyStats.users.map((day) => ({
+                      date: day._id,
+                      truckers: day.truckers,
+                      transporters: day.transporters,
+                    }))}>
+                    <defs>
+                      <linearGradient
+                        id='colorTruckers'
+                        x1='0'
+                        y1='0'
+                        x2='0'
+                        y2='1'>
+                        <stop
+                          offset='5%'
+                          stopColor='hsl(var(--chart-2))'
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset='95%'
+                          stopColor='hsl(var(--chart-2))'
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id='colorTransporters'
+                        x1='0'
+                        y1='0'
+                        x2='0'
+                        y2='1'>
+                        <stop
+                          offset='5%'
+                          stopColor='hsl(var(--chart-3))'
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset='95%'
+                          stopColor='hsl(var(--chart-3))'
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray='3 3' />
+                    <XAxis
+                      dataKey='date'
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return date.toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        });
+                      }}
+                    />
+                    <YAxis />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
+                              <div className='grid grid-cols-2 gap-2'>
+                                <div className='flex flex-col'>
+                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                    Truckers
+                                  </span>
+                                  <span className='font-bold text-muted-foreground'>
+                                    {payload[0].value}
+                                  </span>
+                                </div>
+                                <div className='flex flex-col'>
+                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                    Transporters
+                                  </span>
+                                  <span className='font-bold text-muted-foreground'>
+                                    {payload[1].value}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Area
+                      type='monotone'
+                      dataKey='truckers'
+                      stackId='1'
+                      stroke='hsl(var(--chart-2))'
+                      fill='url(#colorTruckers)'
+                    />
+                    <Area
+                      type='monotone'
+                      dataKey='transporters'
+                      stackId='1'
+                      stroke='hsl(var(--chart-3))'
+                      fill='url(#colorTransporters)'
+                    />
+                    <Legend />
+                  </AreaChart>
+                </ResponsiveContainer>
               </ChartContainer>
             )}
           </CardContent>
@@ -385,30 +438,52 @@ export default function StatsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Load Distribution</CardTitle>
-            <CardDescription>
-              Distribution of loads by material type
-            </CardDescription>
+            <CardDescription>Distribution by material type</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className=' h-[300px]'>
+              <div className='h-[300px]'>
                 <Skeleton className='h-full w-full' />
               </div>
             ) : (
-              <ChartContainer config={chartConfig} className=' h-[300px]'>
-                <PieChart>
-                  <Pie
-                    data={stats?.distributions.materialTypes.map((type) => ({
-                      name: type._id,
-                      value: type.count,
-                      fill: `hsl(${Math.random() * 360} 70% 50%)`,
-                    }))}
-                    dataKey='value'
-                    nameKey='name'
-                    label
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </PieChart>
+              <ChartContainer config={chartConfig} className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <PieChart>
+                    <Pie
+                      data={stats?.distributions.materialTypes.map((type) => ({
+                        name: type._id,
+                        value: type.count,
+                        fill: `hsl(${Math.random() * 360} 70% 50%)`,
+                      }))}
+                      dataKey='value'
+                      nameKey='name'
+                      cx='50%'
+                      cy='50%'
+                      outerRadius={80}
+                      label={(entry) => entry.name}
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
+                              <div className='flex flex-col'>
+                                <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                  {payload[0].name}
+                                </span>
+                                <span className='font-bold text-muted-foreground'>
+                                  {payload[0].value} loads
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </ChartContainer>
             )}
           </CardContent>
@@ -426,30 +501,50 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className=' h-[300px]'>
+              <div className='h-[300px]'>
                 <Skeleton className='h-full w-full' />
               </div>
             ) : (
-              <ChartContainer config={chartConfig} className=' h-[300px]'>
-                <BarChart
-                  data={[
-                    {
-                      name: "Verified",
-                      value: stats?.overallStats.trucks.verified || 0,
-                      fill: "hsl(var(--chart-4))",
-                    },
-                    {
-                      name: "Pending",
-                      value: stats?.overallStats.trucks.pending || 0,
-                      fill: "hsl(var(--chart-5))",
-                    },
-                  ]}>
-                  <CartesianGrid strokeDasharray='3 3' />
-                  <XAxis dataKey='name' />
-                  <YAxis />
-                  <Bar dataKey='value' />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                </BarChart>
+              <ChartContainer config={chartConfig} className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <BarChart
+                    data={[
+                      {
+                        name: "Verified",
+                        value: stats?.overallStats.trucks.verified || 0,
+                        fill: "hsl(var(--chart-4))",
+                      },
+                      {
+                        name: "Pending",
+                        value: stats?.overallStats.trucks.pending || 0,
+                        fill: "hsl(var(--chart-5))",
+                      },
+                    ]}>
+                    <CartesianGrid strokeDasharray='3 3' />
+                    <XAxis dataKey='name' />
+                    <YAxis />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
+                              <div className='flex flex-col'>
+                                <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                  {payload[0].name}
+                                </span>
+                                <span className='font-bold text-muted-foreground'>
+                                  {payload[0].value} trucks
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar dataKey='value' />
+                  </BarChart>
+                </ResponsiveContainer>
               </ChartContainer>
             )}
           </CardContent>
@@ -457,36 +552,46 @@ export default function StatsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Load Value Statistics</CardTitle>
-            <CardDescription>Total and average load values</CardDescription>
+            <CardTitle>Popular Routes</CardTitle>
+            <CardDescription>Most frequently used routes</CardDescription>
           </CardHeader>
-          <CardContent className='space-y-4'>
+          <CardContent>
             {isLoading ? (
-              <>
-                <div>
-                  <Skeleton className='h-4 w-[100px]' />
-                  <Skeleton className='mt-2 h-8 w-[180px]' />
-                </div>
-                <div>
-                  <Skeleton className='h-4 w-[100px]' />
-                  <Skeleton className='mt-2 h-8 w-[180px]' />
-                </div>
-              </>
+              <div className='space-y-4'>
+                {[1, 2, 3].map((i) => (
+                  <div key={i}>
+                    <Skeleton className='h-4 w-[100px]' />
+                    <Skeleton className='mt-2 h-8 w-[180px]' />
+                  </div>
+                ))}
+              </div>
             ) : (
-              <>
-                <div>
-                  <p className='text-sm font-medium'>Total Load Value</p>
-                  <p className='text-2xl font-bold'>
-                    {formatCurrency(stats?.overallStats.loads.totalAmount || 0)}
-                  </p>
-                </div>
-                <div>
-                  <p className='text-sm font-medium'>Average Load Value</p>
-                  <p className='text-2xl font-bold'>
-                    {formatCurrency(stats?.overallStats.loads.avgAmount || 0)}
-                  </p>
-                </div>
-              </>
+              <div className='space-y-4'>
+                {stats?.distributions.popularRoutes
+                  .slice(0, 5)
+                  .map((route, index) => (
+                    <div
+                      key={index}
+                      className='flex items-center justify-between'>
+                      <div>
+                        <p className='text-sm font-medium'>
+                          {route._id.source} → {route._id.destination}
+                        </p>
+                        <p className='text-sm text-muted-foreground'>
+                          {route.count} loads
+                        </p>
+                      </div>
+                      <div className='text-right'>
+                        <p className='text-sm font-medium'>
+                          {formatCurrency(route.avgAmount)}
+                        </p>
+                        <p className='text-sm text-muted-foreground'>
+                          Avg. amount
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+              </div>
             )}
           </CardContent>
         </Card>

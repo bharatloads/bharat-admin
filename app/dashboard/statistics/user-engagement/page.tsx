@@ -1,41 +1,553 @@
 "use client";
 
-import { StatsCard } from "@/components/statistics/stats-card";
+import { useEffect, useState } from "react";
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Pie,
+  PieChart,
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import { Users, UserCheck, UserCog } from "lucide-react";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { NumberTicker } from "@/components/ui/number-ticker";
+import { fetcher, ApiError } from "@/lib/fetcher";
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface UserStatsResponse {
+  success: boolean;
+  data: {
+    dailyStats: Array<{
+      _id: string;
+      total: number;
+      truckers: number;
+      transporters: number;
+    }>;
+    userTypes: Array<{
+      _id: string;
+      count: number;
+      verified: number;
+    }>;
+    verificationStats: Array<{
+      _id: boolean;
+      count: number;
+      truckers: number;
+      transporters: number;
+    }>;
+    activityStats: Array<{
+      _id: string;
+      count: number;
+    }>;
+  };
+}
+
+const chartConfig = {
+  users: {
+    label: "Total Users",
+    color: "hsl(var(--chart-1))",
+  },
+  truckers: {
+    label: "Truckers",
+    color: "hsl(var(--chart-2))",
+  },
+  transporters: {
+    label: "Transporters",
+    color: "hsl(var(--chart-3))",
+  },
+  verified: {
+    label: "Verified",
+    color: "hsl(var(--chart-4))",
+  },
+  unverified: {
+    label: "Unverified",
+    color: "hsl(var(--chart-5))",
+  },
+};
 
 export default function UserEngagementPage() {
+  const { toast } = useToast();
+  const [timeRange, setTimeRange] = useState("30d");
+  const [stats, setStats] = useState<UserStatsResponse["data"] | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true);
+        const data = await fetcher<UserStatsResponse>(
+          `/admin/stats/users?timeRange=${timeRange}`
+        );
+        setStats(data.data);
+      } catch (error) {
+        console.error("Error fetching user stats:", error);
+        if (error instanceof ApiError) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error.message,
+          });
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to fetch user statistics",
+          });
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, [timeRange, toast]);
+
+  // Calculate total users and verified users
+  const totalUsers =
+    stats?.userTypes.reduce((acc, type) => acc + type.count, 0) || 0;
+  const verifiedUsers =
+    stats?.userTypes.reduce((acc, type) => acc + type.verified, 0) || 0;
+
   return (
-    <div className='grid grid-cols-1 gap-6 md:grid-cols-2'>
-      <StatsCard title='User Flow & Navigation'>
-        <div>Content coming soon</div>
-      </StatsCard>
+    <div className='space-y-6'>
+      <div className='flex items-center justify-between'>
+        <div>
+          <h2 className='text-2xl font-bold tracking-tight'>User Engagement</h2>
+          <p className='text-muted-foreground'>
+            Analyze user behavior and interactions
+          </p>
+        </div>
+        <Select value={timeRange} onValueChange={setTimeRange}>
+          <SelectTrigger className='w-[160px]'>
+            <SelectValue placeholder='Select time range' />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value='7d'>Last 7 days</SelectItem>
+            <SelectItem value='30d'>Last 30 days</SelectItem>
+            <SelectItem value='90d'>Last 90 days</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-      <StatsCard title='Most Visited Pages'>
-        <div>Content coming soon</div>
-      </StatsCard>
+      {/* Overview Cards */}
+      <div className='grid gap-6 md:grid-cols-3'>
+        {isLoading ? (
+          <>
+            {[1, 2, 3].map((i) => (
+              <Card key={i}>
+                <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                  <Skeleton className='h-4 w-[100px]' />
+                  <Skeleton className='h-4 w-4' />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className='h-8 w-[120px]' />
+                  <Skeleton className='mt-2 h-4 w-[80px]' />
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        ) : (
+          <>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Total Users
+                </CardTitle>
+                <Users className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  <NumberTicker value={totalUsers} direction='up' />
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  {stats?.dailyStats[stats.dailyStats.length - 1]?.total || 0}{" "}
+                  new today
+                </p>
+              </CardContent>
+            </Card>
 
-      <StatsCard title='Drop-off & Cancellation Points'>
-        <div>Content coming soon</div>
-      </StatsCard>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Verified Users
+                </CardTitle>
+                <UserCheck className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  <NumberTicker value={verifiedUsers} direction='up' />
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  {((verifiedUsers / totalUsers) * 100).toFixed(1)}% of total
+                  users
+                </p>
+              </CardContent>
+            </Card>
 
-      <StatsCard title='Session Duration & Frequency'>
-        <div>Content coming soon</div>
-      </StatsCard>
+            <Card>
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <CardTitle className='text-sm font-medium'>
+                  Active Users
+                </CardTitle>
+                <UserCog className='h-4 w-4 text-muted-foreground' />
+              </CardHeader>
+              <CardContent>
+                <div className='text-2xl font-bold'>
+                  <NumberTicker
+                    value={
+                      stats?.activityStats.find(
+                        (stat) => stat._id === "LAST_7_DAYS"
+                      )?.count || 0
+                    }
+                    direction='up'
+                  />
+                </div>
+                <p className='text-xs text-muted-foreground'>
+                  Active in last 7 days
+                </p>
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
 
-      <StatsCard title='New vs Returning Users'>
-        <div>Content coming soon</div>
-      </StatsCard>
+      {/* Charts */}
+      <div className='grid gap-6 md:grid-cols-2'>
+        <Card>
+          <CardHeader>
+            <CardTitle>User Growth</CardTitle>
+            <CardDescription>Daily user registrations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className='h-[300px]'>
+                <Skeleton className='h-full w-full' />
+              </div>
+            ) : (
+              <div className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <AreaChart data={stats?.dailyStats}>
+                    <defs>
+                      <linearGradient
+                        id='colorTruckers'
+                        x1='0'
+                        y1='0'
+                        x2='0'
+                        y2='1'>
+                        <stop
+                          offset='5%'
+                          stopColor='hsl(var(--chart-2))'
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset='95%'
+                          stopColor='hsl(var(--chart-2))'
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                      <linearGradient
+                        id='colorTransporters'
+                        x1='0'
+                        y1='0'
+                        x2='0'
+                        y2='1'>
+                        <stop
+                          offset='5%'
+                          stopColor='hsl(var(--chart-3))'
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset='95%'
+                          stopColor='hsl(var(--chart-3))'
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray='3 3' />
+                    <XAxis
+                      dataKey='_id'
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return date.toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        });
+                      }}
+                    />
+                    <YAxis />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          const date = new Date(label);
+                          return (
+                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
+                              <p className='text-[0.70rem] uppercase text-muted-foreground'>
+                                {date.toLocaleDateString("en-US", {
+                                  month: "long",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
+                              </p>
+                              <div className='grid grid-cols-2 gap-2'>
+                                <div className='flex flex-col'>
+                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                    Truckers
+                                  </span>
+                                  <span className='font-bold text-muted-foreground'>
+                                    {payload[0].value}
+                                  </span>
+                                </div>
+                                <div className='flex flex-col'>
+                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                    Transporters
+                                  </span>
+                                  <span className='font-bold text-muted-foreground'>
+                                    {payload[1].value}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Area
+                      type='monotone'
+                      dataKey='truckers'
+                      stackId='1'
+                      stroke='hsl(var(--chart-2))'
+                      fill='url(#colorTruckers)'
+                    />
+                    <Area
+                      type='monotone'
+                      dataKey='transporters'
+                      stackId='1'
+                      stroke='hsl(var(--chart-3))'
+                      fill='url(#colorTransporters)'
+                    />
+                    <Legend />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      <StatsCard title='Click-through Rates'>
-        <div>Content coming soon</div>
-      </StatsCard>
+        <Card>
+          <CardHeader>
+            <CardTitle>User Type Distribution</CardTitle>
+            <CardDescription>Breakdown by user type</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className='h-[300px]'>
+                <Skeleton className='h-full w-full' />
+              </div>
+            ) : (
+              <div className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <PieChart>
+                    <Pie
+                      data={stats?.userTypes.map((type) => ({
+                        name: type._id,
+                        value: type.count,
+                        fill:
+                          type._id === "TRUCKER"
+                            ? "hsl(var(--chart-2))"
+                            : "hsl(var(--chart-3))",
+                      }))}
+                      dataKey='value'
+                      nameKey='name'
+                      cx='50%'
+                      cy='50%'
+                      outerRadius={80}
+                      label={(entry) => `${entry.name} (${entry.value})`}
+                    />
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
+                              <div className='flex flex-col'>
+                                <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                  {data.name}
+                                </span>
+                                <span className='font-bold text-muted-foreground'>
+                                  {data.value} users
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
-      <StatsCard title='Device Analytics'>
-        <div>Content coming soon</div>
-      </StatsCard>
+      {/* Additional Stats */}
+      <div className='grid gap-6 md:grid-cols-2'>
+        <Card>
+          <CardHeader>
+            <CardTitle>Verification Status</CardTitle>
+            <CardDescription>User verification breakdown</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className='h-[300px]'>
+                <Skeleton className='h-full w-full' />
+              </div>
+            ) : (
+              <div className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <BarChart
+                    data={stats?.verificationStats.map((stat) => ({
+                      name: stat._id ? "Verified" : "Unverified",
+                      truckers: stat.truckers,
+                      transporters: stat.transporters,
+                    }))}>
+                    <CartesianGrid strokeDasharray='3 3' />
+                    <XAxis dataKey='name' />
+                    <YAxis />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
+                              <p className='text-[0.70rem] uppercase text-muted-foreground'>
+                                {label}
+                              </p>
+                              <div className='grid grid-cols-2 gap-2'>
+                                <div className='flex flex-col'>
+                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                    Truckers
+                                  </span>
+                                  <span className='font-bold text-muted-foreground'>
+                                    {payload[0].value}
+                                  </span>
+                                </div>
+                                <div className='flex flex-col'>
+                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                    Transporters
+                                  </span>
+                                  <span className='font-bold text-muted-foreground'>
+                                    {payload[1].value}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar
+                      dataKey='truckers'
+                      name='Truckers'
+                      fill='hsl(var(--chart-2))'
+                    />
+                    <Bar
+                      dataKey='transporters'
+                      name='Transporters'
+                      fill='hsl(var(--chart-3))'
+                    />
+                    <Legend />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-      <StatsCard title='OS Analytics'>
-        <div>Content coming soon</div>
-      </StatsCard>
+        <Card>
+          <CardHeader>
+            <CardTitle>User Activity</CardTitle>
+            <CardDescription>Active users by time period</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className='h-[300px]'>
+                <Skeleton className='h-full w-full' />
+              </div>
+            ) : (
+              <div className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <BarChart
+                    data={stats?.activityStats.map((stat) => ({
+                      name:
+                        stat._id === "LAST_7_DAYS"
+                          ? "Last 7 Days"
+                          : stat._id === "LAST_30_DAYS"
+                          ? "Last 30 Days"
+                          : "Inactive",
+                      value: stat.count,
+                      fill:
+                        stat._id === "LAST_7_DAYS"
+                          ? "hsl(var(--chart-4))"
+                          : stat._id === "LAST_30_DAYS"
+                          ? "hsl(var(--chart-5))"
+                          : "hsl(var(--chart-6))",
+                    }))}>
+                    <CartesianGrid strokeDasharray='3 3' />
+                    <XAxis dataKey='name' />
+                    <YAxis />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
+                              <div className='flex flex-col'>
+                                <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                  {label}
+                                </span>
+                                <span className='font-bold text-muted-foreground'>
+                                  {payload[0].value} users
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Bar dataKey='value' />
+                    <Legend />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
