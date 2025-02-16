@@ -12,6 +12,8 @@ import {
   ArrowLeft,
   ExternalLink,
   Truck,
+  XCircle,
+  MessageSquare,
 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -41,6 +43,8 @@ interface GetBidByIdResponse {
       };
       companyName?: string;
     };
+    rejectionReason?: string;
+    rejectionNote?: string;
     offeredTo: {
       _id: string;
       name: string;
@@ -195,6 +199,7 @@ export default function BidDetailsPage() {
             <CardTitle>Bid Information</CardTitle>
             <CardDescription>Basic details about the bid</CardDescription>
           </CardHeader>
+
           <CardContent className="space-y-4">
             <div className="flex items-center gap-2">
               <Package className="h-4 w-4 text-muted-foreground" />
@@ -215,6 +220,27 @@ export default function BidDetailsPage() {
                 <p>₹{bid.biddedAmount.dieselAmount}</p>
               </div>
             </div>
+            {bid.status === "REJECTED" && (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Rejection Reason:</span>
+                  <p>
+                    {bid.rejectionReason
+                      ?.replace(/_/g, " ")
+                      .toLowerCase()
+                      .replace(/\b\w/g, (char) => char.toUpperCase())}
+                  </p>
+                </div>
+                {bid.rejectionNote && (
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">Rejection Note:</span>
+                    <p>{bid.rejectionNote}</p>
+                  </div>
+                )}
+              </div>
+            )}
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">Created:</span>

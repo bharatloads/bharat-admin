@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { GetUsersParams, GetUsersResponse } from "@/types/api";
 import { fetcher, ApiError } from "@/lib/fetcher";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function UsersPage() {
   const { toast } = useToast();
@@ -25,7 +26,7 @@ export default function UsersPage() {
     page: 1,
     limit: 10,
   });
-
+  const router = useRouter();
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -189,10 +190,10 @@ export default function UsersPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => {
-                        // Handle view user
+                        router.push(`/dashboard/user/${user._id}`);
                       }}
                     >
-                      View
+                      View Details
                     </Button>
                   </TableCell>
                 </TableRow>
