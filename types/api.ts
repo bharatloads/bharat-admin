@@ -96,6 +96,8 @@ export interface Truck {
   truckType: string;
   isRCVerified: boolean;
   expiresAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface GetTrucksResponse {
@@ -200,6 +202,8 @@ export interface Load {
       countryCode: string;
       phone: string;
     };
+    companyName?: string;
+    companyLocation?: string;
   };
   materialType: string;
   source: {
@@ -218,6 +222,7 @@ export interface Load {
   };
   isActive: boolean;
   expiresAt: string;
+  createdAt: string;
 }
 
 export interface GetLoadsParams {

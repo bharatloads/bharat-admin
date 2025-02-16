@@ -63,28 +63,28 @@ interface UserStatsResponse {
   };
 }
 
-const chartConfig = {
-  users: {
-    label: "Total Users",
-    color: "hsl(var(--chart-1))",
-  },
-  truckers: {
-    label: "Truckers",
-    color: "hsl(var(--chart-2))",
-  },
-  transporters: {
-    label: "Transporters",
-    color: "hsl(var(--chart-3))",
-  },
-  verified: {
-    label: "Verified",
-    color: "hsl(var(--chart-4))",
-  },
-  unverified: {
-    label: "Unverified",
-    color: "hsl(var(--chart-5))",
-  },
-};
+// const chartConfig = {
+//   users: {
+//     label: "Total Users",
+//     color: "hsl(var(--chart-1))",
+//   },
+//   truckers: {
+//     label: "Truckers",
+//     color: "hsl(var(--chart-2))",
+//   },
+//   transporters: {
+//     label: "Transporters",
+//     color: "hsl(var(--chart-3))",
+//   },
+//   verified: {
+//     label: "Verified",
+//     color: "hsl(var(--chart-4))",
+//   },
+//   unverified: {
+//     label: "Unverified",
+//     color: "hsl(var(--chart-5))",
+//   },
+// };
 
 export default function UserEngagementPage() {
   const { toast } = useToast();
@@ -130,39 +130,39 @@ export default function UserEngagementPage() {
     stats?.userTypes.reduce((acc, type) => acc + type.verified, 0) || 0;
 
   return (
-    <div className='space-y-6'>
-      <div className='flex items-center justify-between'>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h2 className='text-2xl font-bold tracking-tight'>User Engagement</h2>
-          <p className='text-muted-foreground'>
+          <h2 className="text-2xl font-bold tracking-tight">User Engagement</h2>
+          <p className="text-muted-foreground">
             Analyze user behavior and interactions
           </p>
         </div>
         <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className='w-[160px]'>
-            <SelectValue placeholder='Select time range' />
+          <SelectTrigger className="w-[160px]">
+            <SelectValue placeholder="Select time range" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value='7d'>Last 7 days</SelectItem>
-            <SelectItem value='30d'>Last 30 days</SelectItem>
-            <SelectItem value='90d'>Last 90 days</SelectItem>
+            <SelectItem value="7d">Last 7 days</SelectItem>
+            <SelectItem value="30d">Last 30 days</SelectItem>
+            <SelectItem value="90d">Last 90 days</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Overview Cards */}
-      <div className='grid gap-6 md:grid-cols-3'>
+      <div className="grid gap-6 md:grid-cols-3">
         {isLoading ? (
           <>
             {[1, 2, 3].map((i) => (
               <Card key={i}>
-                <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                  <Skeleton className='h-4 w-[100px]' />
-                  <Skeleton className='h-4 w-4' />
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <Skeleton className="h-4 w-[100px]" />
+                  <Skeleton className="h-4 w-4" />
                 </CardHeader>
                 <CardContent>
-                  <Skeleton className='h-8 w-[120px]' />
-                  <Skeleton className='mt-2 h-4 w-[80px]' />
+                  <Skeleton className="h-8 w-[120px]" />
+                  <Skeleton className="mt-2 h-4 w-[80px]" />
                 </CardContent>
               </Card>
             ))}
@@ -170,17 +170,17 @@ export default function UserEngagementPage() {
         ) : (
           <>
             <Card>
-              <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                <CardTitle className='text-sm font-medium'>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
                   Total Users
                 </CardTitle>
-                <Users className='h-4 w-4 text-muted-foreground' />
+                <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold'>
-                  <NumberTicker value={totalUsers} direction='up' />
+                <div className="text-2xl font-bold">
+                  <NumberTicker value={totalUsers} direction="up" />
                 </div>
-                <p className='text-xs text-muted-foreground'>
+                <p className="text-xs text-muted-foreground">
                   {stats?.dailyStats[stats.dailyStats.length - 1]?.total || 0}{" "}
                   new today
                 </p>
@@ -188,17 +188,17 @@ export default function UserEngagementPage() {
             </Card>
 
             <Card>
-              <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                <CardTitle className='text-sm font-medium'>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
                   Verified Users
                 </CardTitle>
-                <UserCheck className='h-4 w-4 text-muted-foreground' />
+                <UserCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold'>
-                  <NumberTicker value={verifiedUsers} direction='up' />
+                <div className="text-2xl font-bold">
+                  <NumberTicker value={verifiedUsers} direction="up" />
                 </div>
-                <p className='text-xs text-muted-foreground'>
+                <p className="text-xs text-muted-foreground">
                   {((verifiedUsers / totalUsers) * 100).toFixed(1)}% of total
                   users
                 </p>
@@ -206,24 +206,24 @@ export default function UserEngagementPage() {
             </Card>
 
             <Card>
-              <CardHeader className='flex flex-row items-center justify-between pb-2'>
-                <CardTitle className='text-sm font-medium'>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">
                   Active Users
                 </CardTitle>
-                <UserCog className='h-4 w-4 text-muted-foreground' />
+                <UserCog className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className='text-2xl font-bold'>
+                <div className="text-2xl font-bold">
                   <NumberTicker
                     value={
                       stats?.activityStats.find(
                         (stat) => stat._id === "LAST_7_DAYS"
                       )?.count || 0
                     }
-                    direction='up'
+                    direction="up"
                   />
                 </div>
-                <p className='text-xs text-muted-foreground'>
+                <p className="text-xs text-muted-foreground">
                   Active in last 7 days
                 </p>
               </CardContent>
@@ -233,7 +233,7 @@ export default function UserEngagementPage() {
       </div>
 
       {/* Charts */}
-      <div className='grid gap-6 md:grid-cols-2'>
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>User Growth</CardTitle>
@@ -241,52 +241,54 @@ export default function UserEngagementPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className='h-[300px]'>
-                <Skeleton className='h-full w-full' />
+              <div className="h-[300px]">
+                <Skeleton className="h-full w-full" />
               </div>
             ) : (
-              <div className='h-[300px]'>
-                <ResponsiveContainer width='100%' height='100%'>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={stats?.dailyStats}>
                     <defs>
                       <linearGradient
-                        id='colorTruckers'
-                        x1='0'
-                        y1='0'
-                        x2='0'
-                        y2='1'>
+                        id="colorTruckers"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
                         <stop
-                          offset='5%'
-                          stopColor='hsl(var(--chart-2))'
+                          offset="5%"
+                          stopColor="hsl(var(--chart-2))"
                           stopOpacity={0.8}
                         />
                         <stop
-                          offset='95%'
-                          stopColor='hsl(var(--chart-2))'
+                          offset="95%"
+                          stopColor="hsl(var(--chart-2))"
                           stopOpacity={0.1}
                         />
                       </linearGradient>
                       <linearGradient
-                        id='colorTransporters'
-                        x1='0'
-                        y1='0'
-                        x2='0'
-                        y2='1'>
+                        id="colorTransporters"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
                         <stop
-                          offset='5%'
-                          stopColor='hsl(var(--chart-3))'
+                          offset="5%"
+                          stopColor="hsl(var(--chart-3))"
                           stopOpacity={0.8}
                         />
                         <stop
-                          offset='95%'
-                          stopColor='hsl(var(--chart-3))'
+                          offset="95%"
+                          stopColor="hsl(var(--chart-3))"
                           stopOpacity={0.1}
                         />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray='3 3' />
+                    <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
-                      dataKey='_id'
+                      dataKey="_id"
                       tickFormatter={(value) => {
                         const date = new Date(value);
                         return date.toLocaleDateString("en-US", {
@@ -301,28 +303,28 @@ export default function UserEngagementPage() {
                         if (active && payload && payload.length) {
                           const date = new Date(label);
                           return (
-                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
-                              <p className='text-[0.70rem] uppercase text-muted-foreground'>
+                            <div className="rounded-lg border bg-background p-2 shadow-sm">
+                              <p className="text-[0.70rem] uppercase text-muted-foreground">
                                 {date.toLocaleDateString("en-US", {
                                   month: "long",
                                   day: "numeric",
                                   year: "numeric",
                                 })}
                               </p>
-                              <div className='grid grid-cols-2 gap-2'>
-                                <div className='flex flex-col'>
-                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="flex flex-col">
+                                  <span className="text-[0.70rem] uppercase text-muted-foreground">
                                     Truckers
                                   </span>
-                                  <span className='font-bold text-muted-foreground'>
+                                  <span className="font-bold text-muted-foreground">
                                     {payload[0].value}
                                   </span>
                                 </div>
-                                <div className='flex flex-col'>
-                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                <div className="flex flex-col">
+                                  <span className="text-[0.70rem] uppercase text-muted-foreground">
                                     Transporters
                                   </span>
-                                  <span className='font-bold text-muted-foreground'>
+                                  <span className="font-bold text-muted-foreground">
                                     {payload[1].value}
                                   </span>
                                 </div>
@@ -334,18 +336,18 @@ export default function UserEngagementPage() {
                       }}
                     />
                     <Area
-                      type='monotone'
-                      dataKey='truckers'
-                      stackId='1'
-                      stroke='hsl(var(--chart-2))'
-                      fill='url(#colorTruckers)'
+                      type="monotone"
+                      dataKey="truckers"
+                      stackId="1"
+                      stroke="hsl(var(--chart-2))"
+                      fill="url(#colorTruckers)"
                     />
                     <Area
-                      type='monotone'
-                      dataKey='transporters'
-                      stackId='1'
-                      stroke='hsl(var(--chart-3))'
-                      fill='url(#colorTransporters)'
+                      type="monotone"
+                      dataKey="transporters"
+                      stackId="1"
+                      stroke="hsl(var(--chart-3))"
+                      fill="url(#colorTransporters)"
                     />
                     <Legend />
                   </AreaChart>
@@ -362,12 +364,12 @@ export default function UserEngagementPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className='h-[300px]'>
-                <Skeleton className='h-full w-full' />
+              <div className="h-[300px]">
+                <Skeleton className="h-full w-full" />
               </div>
             ) : (
-              <div className='h-[300px]'>
-                <ResponsiveContainer width='100%' height='100%'>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={stats?.userTypes.map((type) => ({
@@ -378,10 +380,10 @@ export default function UserEngagementPage() {
                             ? "hsl(var(--chart-2))"
                             : "hsl(var(--chart-3))",
                       }))}
-                      dataKey='value'
-                      nameKey='name'
-                      cx='50%'
-                      cy='50%'
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
                       outerRadius={80}
                       label={(entry) => `${entry.name} (${entry.value})`}
                     />
@@ -390,12 +392,12 @@ export default function UserEngagementPage() {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload;
                           return (
-                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
-                              <div className='flex flex-col'>
-                                <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                            <div className="rounded-lg border bg-background p-2 shadow-sm">
+                              <div className="flex flex-col">
+                                <span className="text-[0.70rem] uppercase text-muted-foreground">
                                   {data.name}
                                 </span>
-                                <span className='font-bold text-muted-foreground'>
+                                <span className="font-bold text-muted-foreground">
                                   {data.value} users
                                 </span>
                               </div>
@@ -415,7 +417,7 @@ export default function UserEngagementPage() {
       </div>
 
       {/* Additional Stats */}
-      <div className='grid gap-6 md:grid-cols-2'>
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Verification Status</CardTitle>
@@ -423,43 +425,44 @@ export default function UserEngagementPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className='h-[300px]'>
-                <Skeleton className='h-full w-full' />
+              <div className="h-[300px]">
+                <Skeleton className="h-full w-full" />
               </div>
             ) : (
-              <div className='h-[300px]'>
-                <ResponsiveContainer width='100%' height='100%'>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={stats?.verificationStats.map((stat) => ({
                       name: stat._id ? "Verified" : "Unverified",
                       truckers: stat.truckers,
                       transporters: stat.transporters,
-                    }))}>
-                    <CartesianGrid strokeDasharray='3 3' />
-                    <XAxis dataKey='name' />
+                    }))}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           return (
-                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
-                              <p className='text-[0.70rem] uppercase text-muted-foreground'>
+                            <div className="rounded-lg border bg-background p-2 shadow-sm">
+                              <p className="text-[0.70rem] uppercase text-muted-foreground">
                                 {label}
                               </p>
-                              <div className='grid grid-cols-2 gap-2'>
-                                <div className='flex flex-col'>
-                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="flex flex-col">
+                                  <span className="text-[0.70rem] uppercase text-muted-foreground">
                                     Truckers
                                   </span>
-                                  <span className='font-bold text-muted-foreground'>
+                                  <span className="font-bold text-muted-foreground">
                                     {payload[0].value}
                                   </span>
                                 </div>
-                                <div className='flex flex-col'>
-                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                <div className="flex flex-col">
+                                  <span className="text-[0.70rem] uppercase text-muted-foreground">
                                     Transporters
                                   </span>
-                                  <span className='font-bold text-muted-foreground'>
+                                  <span className="font-bold text-muted-foreground">
                                     {payload[1].value}
                                   </span>
                                 </div>
@@ -471,14 +474,14 @@ export default function UserEngagementPage() {
                       }}
                     />
                     <Bar
-                      dataKey='truckers'
-                      name='Truckers'
-                      fill='hsl(var(--chart-2))'
+                      dataKey="truckers"
+                      name="Truckers"
+                      fill="hsl(var(--chart-2))"
                     />
                     <Bar
-                      dataKey='transporters'
-                      name='Transporters'
-                      fill='hsl(var(--chart-3))'
+                      dataKey="transporters"
+                      name="Transporters"
+                      fill="hsl(var(--chart-3))"
                     />
                     <Legend />
                   </BarChart>
@@ -495,12 +498,12 @@ export default function UserEngagementPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className='h-[300px]'>
-                <Skeleton className='h-full w-full' />
+              <div className="h-[300px]">
+                <Skeleton className="h-full w-full" />
               </div>
             ) : (
-              <div className='h-[300px]'>
-                <ResponsiveContainer width='100%' height='100%'>
+              <div className="h-[300px]">
+                <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={stats?.activityStats.map((stat) => ({
                       name:
@@ -516,20 +519,21 @@ export default function UserEngagementPage() {
                           : stat._id === "LAST_30_DAYS"
                           ? "hsl(var(--chart-5))"
                           : "hsl(var(--chart-6))",
-                    }))}>
-                    <CartesianGrid strokeDasharray='3 3' />
-                    <XAxis dataKey='name' />
+                    }))}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
                     <YAxis />
                     <Tooltip
                       content={({ active, payload, label }) => {
                         if (active && payload && payload.length) {
                           return (
-                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
-                              <div className='flex flex-col'>
-                                <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                            <div className="rounded-lg border bg-background p-2 shadow-sm">
+                              <div className="flex flex-col">
+                                <span className="text-[0.70rem] uppercase text-muted-foreground">
                                   {label}
                                 </span>
-                                <span className='font-bold text-muted-foreground'>
+                                <span className="font-bold text-muted-foreground">
                                   {payload[0].value} users
                                 </span>
                               </div>
@@ -539,7 +543,7 @@ export default function UserEngagementPage() {
                         return null;
                       }}
                     />
-                    <Bar dataKey='value' />
+                    <Bar dataKey="value" />
                     <Legend />
                   </BarChart>
                 </ResponsiveContainer>
