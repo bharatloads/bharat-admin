@@ -165,113 +165,113 @@ export default function StatsPage() {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Statistics & Analytics</h1>
+    <div className='space-y-6 p-6'>
+      <div className='flex items-center justify-between'>
+        <h1 className='text-3xl font-bold'>Statistics & Analytics</h1>
         <Select value={timeRange} onValueChange={setTimeRange}>
-          <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder="Select time range" />
+          <SelectTrigger className='w-[160px]'>
+            <SelectValue placeholder='Select time range' />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="7d">Last 7 days</SelectItem>
-            <SelectItem value="30d">Last 30 days</SelectItem>
-            <SelectItem value="90d">Last 90 days</SelectItem>
+            <SelectItem value='7d'>Last 7 days</SelectItem>
+            <SelectItem value='30d'>Last 30 days</SelectItem>
+            <SelectItem value='90d'>Last 90 days</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Overview Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className='grid gap-6 md:grid-cols-2 lg:grid-cols-3'>
         {isLoading ? (
           <>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <Skeleton className="h-4 w-[100px]" />
-                <Skeleton className="h-4 w-4" />
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <Skeleton className='h-4 w-[100px]' />
+                <Skeleton className='h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <Skeleton className="h-8 w-[120px]" />
-                <Skeleton className="mt-2 h-4 w-[80px]" />
+                <Skeleton className='h-8 w-[120px]' />
+                <Skeleton className='mt-2 h-4 w-[80px]' />
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <Skeleton className="h-4 w-[100px]" />
-                <Skeleton className="h-4 w-4" />
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <Skeleton className='h-4 w-[100px]' />
+                <Skeleton className='h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <Skeleton className="h-8 w-[120px]" />
-                <Skeleton className="mt-2 h-4 w-[80px]" />
+                <Skeleton className='h-8 w-[120px]' />
+                <Skeleton className='mt-2 h-4 w-[80px]' />
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <Skeleton className="h-4 w-[100px]" />
-                <Skeleton className="h-4 w-4" />
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <Skeleton className='h-4 w-[100px]' />
+                <Skeleton className='h-4 w-4' />
               </CardHeader>
               <CardContent>
-                <Skeleton className="h-8 w-[120px]" />
-                <Skeleton className="mt-2 h-4 w-[80px]" />
+                <Skeleton className='h-8 w-[120px]' />
+                <Skeleton className='mt-2 h-4 w-[80px]' />
               </CardContent>
             </Card>
           </>
         ) : (
           <>
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <CardTitle className='text-sm font-medium'>
                   Total Users
                 </CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
+                <Users className='h-4 w-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className='text-2xl font-bold'>
                   <NumberTicker
                     value={stats?.overallStats.users.total || 0}
-                    direction="up"
+                    direction='up'
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className='text-xs text-muted-foreground'>
                   {stats?.overallStats.users.verified || 0} verified users
                 </p>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <CardTitle className='text-sm font-medium'>
                   Total Trucks
                 </CardTitle>
-                <Truck className="h-4 w-4 text-muted-foreground" />
+                <Truck className='h-4 w-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className='text-2xl font-bold'>
                   <NumberTicker
                     value={stats?.overallStats.trucks.total || 0}
-                    direction="up"
+                    direction='up'
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className='text-xs text-muted-foreground'>
                   {stats?.overallStats.trucks.verified || 0} verified trucks
                 </p>
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">
+              <CardHeader className='flex flex-row items-center justify-between pb-2'>
+                <CardTitle className='text-sm font-medium'>
                   Total Loads
                 </CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
+                <Package className='h-4 w-4 text-muted-foreground' />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className='text-2xl font-bold'>
                   <NumberTicker
                     value={stats?.overallStats.loads.total || 0}
-                    direction="up"
+                    direction='up'
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className='text-xs text-muted-foreground'>
                   {stats?.overallStats.loads.active || 0} active loads
                 </p>
               </CardContent>
@@ -281,7 +281,7 @@ export default function StatsPage() {
       </div>
 
       {/* Growth Charts */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className='grid gap-6 md:grid-cols-2'>
         <Card>
           <CardHeader>
             <CardTitle>User Growth</CardTitle>
@@ -289,62 +289,56 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="aspect-[2/1] h-[300px]">
-                <Skeleton className="h-full w-full" />
+              <div className=' h-[300px]'>
+                <Skeleton className='h-full w-full' />
               </div>
             ) : (
-              <ChartContainer
-                config={chartConfig}
-                className="aspect-[2/1] h-[300px]"
-              >
+              <ChartContainer config={chartConfig} className=' h-[300px]'>
                 <AreaChart
                   data={stats?.dailyStats.users.map((day) => ({
                     date: day._id,
                     truckers: day.truckers,
                     transporters: day.transporters,
-                  }))}
-                >
+                  }))}>
                   <defs>
                     <linearGradient
-                      id="colorTruckers"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
+                      id='colorTruckers'
+                      x1='0'
+                      y1='0'
+                      x2='0'
+                      y2='1'>
                       <stop
-                        offset="5%"
-                        stopColor="hsl(var(--chart-2))"
+                        offset='5%'
+                        stopColor='hsl(var(--chart-2))'
                         stopOpacity={0.8}
                       />
                       <stop
-                        offset="95%"
-                        stopColor="hsl(var(--chart-2))"
+                        offset='95%'
+                        stopColor='hsl(var(--chart-2))'
                         stopOpacity={0.1}
                       />
                     </linearGradient>
                     <linearGradient
-                      id="colorTransporters"
-                      x1="0"
-                      y1="0"
-                      x2="0"
-                      y2="1"
-                    >
+                      id='colorTransporters'
+                      x1='0'
+                      y1='0'
+                      x2='0'
+                      y2='1'>
                       <stop
-                        offset="5%"
-                        stopColor="hsl(var(--chart-3))"
+                        offset='5%'
+                        stopColor='hsl(var(--chart-3))'
                         stopOpacity={0.8}
                       />
                       <stop
-                        offset="95%"
-                        stopColor="hsl(var(--chart-3))"
+                        offset='95%'
+                        stopColor='hsl(var(--chart-3))'
                         stopOpacity={0.1}
                       />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid strokeDasharray='3 3' />
                   <XAxis
-                    dataKey="date"
+                    dataKey='date'
                     tickFormatter={(value) => {
                       const date = new Date(value);
                       return date.toLocaleDateString("en-US", {
@@ -368,18 +362,18 @@ export default function StatsPage() {
                     }
                   />
                   <Area
-                    type="monotone"
-                    dataKey="truckers"
-                    stackId="1"
-                    stroke="hsl(var(--chart-2))"
-                    fill="url(#colorTruckers)"
+                    type='monotone'
+                    dataKey='truckers'
+                    stackId='1'
+                    stroke='hsl(var(--chart-2))'
+                    fill='url(#colorTruckers)'
                   />
                   <Area
-                    type="monotone"
-                    dataKey="transporters"
-                    stackId="1"
-                    stroke="hsl(var(--chart-3))"
-                    fill="url(#colorTransporters)"
+                    type='monotone'
+                    dataKey='transporters'
+                    stackId='1'
+                    stroke='hsl(var(--chart-3))'
+                    fill='url(#colorTransporters)'
                   />
                   <ChartLegend content={<ChartLegendContent />} />
                 </AreaChart>
@@ -397,14 +391,11 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="aspect-[2/1] h-[300px]">
-                <Skeleton className="h-full w-full" />
+              <div className=' h-[300px]'>
+                <Skeleton className='h-full w-full' />
               </div>
             ) : (
-              <ChartContainer
-                config={chartConfig}
-                className="aspect-[2/1] h-[300px]"
-              >
+              <ChartContainer config={chartConfig} className=' h-[300px]'>
                 <PieChart>
                   <Pie
                     data={stats?.distributions.materialTypes.map((type) => ({
@@ -412,8 +403,8 @@ export default function StatsPage() {
                       value: type.count,
                       fill: `hsl(${Math.random() * 360} 70% 50%)`,
                     }))}
-                    dataKey="value"
-                    nameKey="name"
+                    dataKey='value'
+                    nameKey='name'
                     label
                   />
                   <ChartTooltip content={<ChartTooltipContent />} />
@@ -425,7 +416,7 @@ export default function StatsPage() {
       </div>
 
       {/* Additional Stats */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className='grid gap-6 md:grid-cols-2'>
         <Card>
           <CardHeader>
             <CardTitle>Truck Verification Status</CardTitle>
@@ -435,14 +426,11 @@ export default function StatsPage() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <div className="aspect-[2/1] h-[300px]">
-                <Skeleton className="h-full w-full" />
+              <div className=' h-[300px]'>
+                <Skeleton className='h-full w-full' />
               </div>
             ) : (
-              <ChartContainer
-                config={chartConfig}
-                className="aspect-[2/1] h-[300px]"
-              >
+              <ChartContainer config={chartConfig} className=' h-[300px]'>
                 <BarChart
                   data={[
                     {
@@ -455,12 +443,11 @@ export default function StatsPage() {
                       value: stats?.overallStats.trucks.pending || 0,
                       fill: "hsl(var(--chart-5))",
                     },
-                  ]}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
+                  ]}>
+                  <CartesianGrid strokeDasharray='3 3' />
+                  <XAxis dataKey='name' />
                   <YAxis />
-                  <Bar dataKey="value" />
+                  <Bar dataKey='value' />
                   <ChartTooltip content={<ChartTooltipContent />} />
                 </BarChart>
               </ChartContainer>
@@ -473,29 +460,29 @@ export default function StatsPage() {
             <CardTitle>Load Value Statistics</CardTitle>
             <CardDescription>Total and average load values</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className='space-y-4'>
             {isLoading ? (
               <>
                 <div>
-                  <Skeleton className="h-4 w-[100px]" />
-                  <Skeleton className="mt-2 h-8 w-[180px]" />
+                  <Skeleton className='h-4 w-[100px]' />
+                  <Skeleton className='mt-2 h-8 w-[180px]' />
                 </div>
                 <div>
-                  <Skeleton className="h-4 w-[100px]" />
-                  <Skeleton className="mt-2 h-8 w-[180px]" />
+                  <Skeleton className='h-4 w-[100px]' />
+                  <Skeleton className='mt-2 h-8 w-[180px]' />
                 </div>
               </>
             ) : (
               <>
                 <div>
-                  <p className="text-sm font-medium">Total Load Value</p>
-                  <p className="text-2xl font-bold">
+                  <p className='text-sm font-medium'>Total Load Value</p>
+                  <p className='text-2xl font-bold'>
                     {formatCurrency(stats?.overallStats.loads.totalAmount || 0)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm font-medium">Average Load Value</p>
-                  <p className="text-2xl font-bold">
+                  <p className='text-sm font-medium'>Average Load Value</p>
+                  <p className='text-2xl font-bold'>
                     {formatCurrency(stats?.overallStats.loads.avgAmount || 0)}
                   </p>
                 </div>
