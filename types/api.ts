@@ -79,17 +79,23 @@ export interface TruckOwner {
 
 export interface Truck {
   _id: string;
-  truckOwner: TruckOwner;
+  truckOwner?: {
+    _id: string;
+    name: string;
+    mobile?: {
+      countryCode: string;
+      phone: string;
+    };
+  };
   truckNumber: string;
   truckLocation: {
     placeName: string;
     coordinates: [number, number];
   };
+  bids: string[];
   truckType: string;
   isRCVerified: boolean;
-  bids: string[];
-  createdAt: string;
-  updatedAt: string;
+  expiresAt: string;
 }
 
 export interface GetTrucksResponse {
@@ -187,7 +193,14 @@ export interface LoadTransporter {
 
 export interface Load {
   _id: string;
-  transporterId: LoadTransporter;
+  transporterId: {
+    _id: string;
+    name: string;
+    mobile: {
+      countryCode: string;
+      phone: string;
+    };
+  };
   materialType: string;
   source: {
     placeName: string;
@@ -197,15 +210,14 @@ export interface Load {
     placeName: string;
     coordinates: [number, number];
   };
+  bids: string[];
   offeredAmount: {
     total: number;
     advanceAmount: number;
     dieselAmount: number;
   };
-  bids: string[];
-  isActive: boolean | null;
-  createdAt: string;
-  updatedAt: string;
+  isActive: boolean;
+  expiresAt: string;
 }
 
 export interface GetLoadsParams {
