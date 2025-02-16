@@ -61,38 +61,47 @@ export default function LoadSearchPage() {
 
   // Debounced search function
   const debouncedSearch = useCallback(
-    debounce(async (params: GetLoadsParams) => {
-      try {
-        setIsLoading(true);
-        // Convert params to query string
-        const queryString = Object.entries(params)
-          .filter(([, value]) => value !== undefined)
-          .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
-          .join("&");
+    (params: GetLoadsParams) => {
+      const search = debounce(async (searchParams: GetLoadsParams) => {
+        try {
+          setIsLoading(true);
+          // Convert params to query string
+          const queryString = Object.entries(searchParams)
+            .filter(([_, value]) => value !== undefined && value !== "")
+            .map(([key, value]) => {
+              if (value instanceof Date) {
+                return `${key}=${value.toISOString()}`;
+              }
+              return `${key}=${value}`;
+            })
+            .join("&");
 
-        const data = await fetcher<GetLoadsResponse>(
-          `/admin/search/loads${queryString ? `?${queryString}` : ""}`
-        );
-        setData(data);
-      } catch (error) {
-        console.error("Error searching loads:", error);
-        if (error instanceof ApiError) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: error.message,
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to search loads",
-          });
+          const data = await fetcher<GetLoadsResponse>(
+            `/admin/loads?${queryString}`
+          );
+          setData(data);
+        } catch (error) {
+          console.error("Error searching loads:", error);
+          if (error instanceof ApiError) {
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: error.message,
+            });
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to search loads",
+            });
+          }
+        } finally {
+          setIsLoading(false);
         }
-      } finally {
-        setIsLoading(false);
-      }
-    }, 300),
+      }, 500);
+
+      search(params);
+    },
     [toast]
   );
 
@@ -140,64 +149,63 @@ export default function LoadSearchPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Search Controls */}
-      <div className="rounded-lg border bg-card p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Search Loads</h2>
-          <Button variant="outline" onClick={handleClearFilters}>
+      <div className='rounded-lg border bg-card p-6'>
+        <div className='mb-4 flex items-center justify-between'>
+          <h2 className='text-lg font-semibold'>Search Loads</h2>
+          <Button variant='outline' onClick={handleClearFilters}>
             Clear Filters
           </Button>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="flex flex-col space-y-2">
-            <label className="text-sm font-medium">Transporter Name</label>
+        <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
+          <div className='flex flex-col space-y-2'>
+            <label className='text-sm font-medium'>Transporter Name</label>
             <Input
-              placeholder="Search by name..."
+              placeholder='Search by name...'
               value={nameSearch}
               onChange={(e) => setNameSearch(e.target.value)}
-              className="w-full"
+              className='w-full'
             />
           </div>
-          <div className="flex flex-col space-y-2">
-            <label className="text-sm font-medium">Phone Number</label>
+          <div className='flex flex-col space-y-2'>
+            <label className='text-sm font-medium'>Phone Number</label>
             <Input
-              placeholder="Search by phone..."
+              placeholder='Search by phone...'
               value={phoneSearch}
               onChange={(e) => setPhoneSearch(e.target.value)}
-              className="w-full"
+              className='w-full'
             />
           </div>
-          <div className="flex flex-col space-y-2">
-            <label className="text-sm font-medium">Source Location</label>
+          <div className='flex flex-col space-y-2'>
+            <label className='text-sm font-medium'>Source Location</label>
             <Input
-              placeholder="Search by source..."
+              placeholder='Search by source...'
               value={sourceSearch}
               onChange={(e) => setSourceSearch(e.target.value)}
-              className="w-full"
+              className='w-full'
             />
           </div>
-          <div className="flex flex-col space-y-2">
-            <label className="text-sm font-medium">Destination Location</label>
+          <div className='flex flex-col space-y-2'>
+            <label className='text-sm font-medium'>Destination Location</label>
             <Input
-              placeholder="Search by destination..."
+              placeholder='Search by destination...'
               value={destinationSearch}
               onChange={(e) => setDestinationSearch(e.target.value)}
-              className="w-full"
+              className='w-full'
             />
           </div>
-          <div className="flex flex-col space-y-2 lg:col-span-2">
-            <label className="text-sm font-medium">Date Range</label>
+          <div className='flex flex-col space-y-2 lg:col-span-2'>
+            <label className='text-sm font-medium'>Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  variant="outline"
+                  variant='outline'
                   className={cn(
                     "justify-start text-left font-normal",
                     !date && "text-muted-foreground"
-                  )}
-                >
-                  <Calendar className="mr-2 h-4 w-4" />
+                  )}>
+                  <Calendar className='mr-2 h-4 w-4' />
                   {date?.from ? (
                     date.to ? (
                       <>
@@ -212,10 +220,10 @@ export default function LoadSearchPage() {
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className='w-auto p-0' align='start'>
                 <CalendarComponent
                   initialFocus
-                  mode="range"
+                  mode='range'
                   defaultMonth={date?.from}
                   selected={date}
                   onSelect={setDate}
@@ -228,7 +236,7 @@ export default function LoadSearchPage() {
       </div>
 
       {/* Results Table */}
-      <div className="rounded-lg border">
+      <div className='rounded-lg border'>
         <Table>
           <TableHeader>
             <TableRow>
@@ -245,37 +253,37 @@ export default function LoadSearchPage() {
           <TableBody>
             {isLoading ? (
               // Loading skeleton rows
-              Array.from({ length: 5 }).map((_, index) => (
+              Array.from({ length: 5 }, (_, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <Skeleton className="h-4 w-[150px]" />
+                    <Skeleton className='h-4 w-[150px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[100px]" />
+                    <Skeleton className='h-4 w-[100px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[120px]" />
+                    <Skeleton className='h-4 w-[120px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[120px]" />
+                    <Skeleton className='h-4 w-[120px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[60px]" />
+                    <Skeleton className='h-4 w-[60px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[80px]" />
+                    <Skeleton className='h-4 w-[80px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-4 w-[80px]" />
+                    <Skeleton className='h-4 w-[80px]' />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className="h-8 w-[100px]" />
+                    <Skeleton className='h-8 w-[100px]' />
                   </TableCell>
                 </TableRow>
               ))
             ) : !hasActiveFilters ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
+                <TableCell colSpan={8} className='text-center py-8'>
                   Enter search criteria to find loads
                 </TableCell>
               </TableRow>
@@ -285,7 +293,7 @@ export default function LoadSearchPage() {
                   <TableCell>
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className="cursor-help">
+                        <span className='cursor-help'>
                           {load.transporterId.name}
                         </span>
                       </TooltipTrigger>
@@ -310,17 +318,15 @@ export default function LoadSearchPage() {
                           : load.isActive === false
                           ? "destructive"
                           : "secondary"
-                      }
-                    >
+                      }>
                       {load.isActive ? "Active" : "Inactive"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleViewLoad(load._id)}
-                    >
+                      variant='outline'
+                      size='sm'
+                      onClick={() => handleViewLoad(load._id)}>
                       View Details
                     </Button>
                   </TableCell>
@@ -328,7 +334,7 @@ export default function LoadSearchPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className="text-center">
+                <TableCell colSpan={8} className='text-center'>
                   No loads found
                 </TableCell>
               </TableRow>
@@ -339,8 +345,8 @@ export default function LoadSearchPage() {
 
       {/* Pagination */}
       {hasActiveFilters && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
+        <div className='flex items-center justify-between'>
+          <p className='text-sm text-muted-foreground'>
             {data?.pagination.total
               ? `Showing ${
                   (searchParams.page - 1) * searchParams.limit + 1
@@ -350,25 +356,23 @@ export default function LoadSearchPage() {
                 )} of ${data.pagination.total} loads`
               : "No loads found"}
           </p>
-          <div className="flex gap-2">
+          <div className='flex gap-2'>
             <Button
-              variant="outline"
-              size="sm"
+              variant='outline'
+              size='sm'
               onClick={() =>
                 setSearchParams((p) => ({ ...p, page: p.page - 1 }))
               }
-              disabled={searchParams.page <= 1 || isLoading}
-            >
+              disabled={searchParams.page <= 1 || isLoading}>
               Previous
             </Button>
             <Button
-              variant="outline"
-              size="sm"
+              variant='outline'
+              size='sm'
               onClick={() =>
                 setSearchParams((p) => ({ ...p, page: p.page + 1 }))
               }
-              disabled={!data || !data.pagination.hasMore || isLoading}
-            >
+              disabled={!data || !data.pagination.hasMore || isLoading}>
               Next
             </Button>
           </div>

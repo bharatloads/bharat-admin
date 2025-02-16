@@ -77,14 +77,14 @@ export default function LoadDetailsPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-8 w-8" />
-          <Skeleton className="h-8 w-48" />
+      <div className='space-y-6'>
+        <div className='flex items-center gap-4'>
+          <Skeleton className='h-8 w-8' />
+          <Skeleton className='h-8 w-48' />
         </div>
-        <div className="grid gap-6 md:grid-cols-2">
-          <Skeleton className="h-[200px]" />
-          <Skeleton className="h-[200px]" />
+        <div className='grid gap-6 md:grid-cols-2'>
+          <Skeleton className='h-[200px]' />
+          <Skeleton className='h-[200px]' />
         </div>
       </div>
     );
@@ -92,8 +92,8 @@ export default function LoadDetailsPage() {
 
   if (!data?.load) {
     return (
-      <div className="flex flex-col items-center justify-center space-y-4">
-        <h1 className="text-2xl font-bold">Load not found</h1>
+      <div className='flex flex-col items-center justify-center space-y-4'>
+        <h1 className='text-2xl font-bold'>Load not found</h1>
         <Button onClick={() => router.back()}>Go Back</Button>
       </div>
     );
@@ -102,19 +102,18 @@ export default function LoadDetailsPage() {
   const { load } = data;
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className='flex items-center justify-between'>
+        <div className='flex items-center gap-4'>
           <Button
-            variant="ghost"
-            size="icon"
+            variant='ghost'
+            size='icon'
             onClick={() => router.back()}
-            className="h-8 w-8"
-          >
-            <ArrowLeft className="h-4 w-4" />
+            className='h-8 w-8'>
+            <ArrowLeft className='h-4 w-4' />
           </Button>
-          <h1 className="text-2xl font-bold">Load Details</h1>
+          <h1 className='text-2xl font-bold'>Load Details</h1>
           <Badge
             variant={
               load.isActive === true
@@ -122,74 +121,71 @@ export default function LoadDetailsPage() {
                 : load.isActive === false
                 ? "destructive"
                 : "secondary"
-            }
-          >
+            }>
             {load.isActive ? "Active" : "Inactive"}
           </Badge>
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className='grid gap-6 md:grid-cols-2'>
         {/* Load Information */}
         <Card>
           <CardHeader>
             <CardTitle>Load Information</CardTitle>
             <CardDescription>Basic details about the load</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Material Type:</span>
+          <CardContent className='space-y-4'>
+            <div className='flex items-center gap-2'>
+              <Package className='h-4 w-4 text-muted-foreground' />
+              <span className='font-medium'>Material Type:</span>
               {load.materialType}
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Source:</span>
+            <div className='flex items-center gap-2'>
+              <MapPin className='h-4 w-4 text-muted-foreground' />
+              <span className='font-medium'>Source:</span>
               {load.source.placeName}
-              <Button variant="ghost" size="icon">
+              <Button variant='ghost' size='icon'>
                 <Link
                   href={`https://maps.google.com/?q=${load.source.coordinates[0]},${load.source.coordinates[1]}`}
-                  target="_blank"
-                >
-                  <ExternalLink className="h-4 w-4" />
+                  target='_blank'>
+                  <ExternalLink className='h-4 w-4' />
                 </Link>
               </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Destination:</span>
+            <div className='flex items-center gap-2'>
+              <MapPin className='h-4 w-4 text-muted-foreground' />
+              <span className='font-medium'>Destination:</span>
               {load.destination.placeName}
-              <Button variant="ghost" size="icon">
+              <Button variant='ghost' size='icon'>
                 <Link
                   href={`https://maps.google.com/?q=${load.destination.coordinates[0]},${load.destination.coordinates[1]}`}
-                  target="_blank"
-                >
-                  <ExternalLink className="h-4 w-4" />
+                  target='_blank'>
+                  <ExternalLink className='h-4 w-4' />
                 </Link>
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className='grid grid-cols-2 gap-4'>
               <div>
-                <span className="font-medium">Total Amount:</span>
+                <span className='font-medium'>Total Amount:</span>
                 <p>₹{load.offeredAmount.total}</p>
               </div>
               <div>
-                <span className="font-medium">Advance Amount:</span>
+                <span className='font-medium'>Advance Amount:</span>
                 <p>₹{load.offeredAmount.advanceAmount}</p>
               </div>
               <div>
-                <span className="font-medium">Diesel Amount:</span>
+                <span className='font-medium'>Diesel Amount:</span>
                 <p>₹{load.offeredAmount.dieselAmount}</p>
               </div>
               <div>
-                <span className="font-medium">Total Bids:</span>
+                <span className='font-medium'>Total Bids:</span>
                 <p>{load.bids.length}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Posted:</span>
-              {format(new Date(load.createdAt), "PPP")}
+            <div className='flex items-center gap-2'>
+              <Calendar className='h-4 w-4 text-muted-foreground' />
+              <span className='font-medium'>Posted:</span>
+              {load.createdAt ? format(new Date(load.createdAt), "PPP") : "N/A"}
             </div>
           </CardContent>
         </Card>
@@ -200,29 +196,29 @@ export default function LoadDetailsPage() {
             <CardTitle>Transporter Information</CardTitle>
             <CardDescription>Details about the transporter</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Name:</span>
+          <CardContent className='space-y-4'>
+            <div className='flex items-center gap-2'>
+              <User className='h-4 w-4 text-muted-foreground' />
+              <span className='font-medium'>Name:</span>
               {load.transporterId.name}
             </div>
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span className="font-medium">Phone:</span>
+            <div className='flex items-center gap-2'>
+              <Phone className='h-4 w-4 text-muted-foreground' />
+              <span className='font-medium'>Phone:</span>
               {load.transporterId.mobile.countryCode}{" "}
               {load.transporterId.mobile.phone}
             </div>
             {load.transporterId.companyName && (
-              <div className="flex items-center gap-2">
-                <Building className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Company:</span>
+              <div className='flex items-center gap-2'>
+                <Building className='h-4 w-4 text-muted-foreground' />
+                <span className='font-medium'>Company:</span>
                 {load.transporterId.companyName}
               </div>
             )}
             {load.transporterId.companyLocation && (
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Company Location:</span>
+              <div className='flex items-center gap-2'>
+                <MapPin className='h-4 w-4 text-muted-foreground' />
+                <span className='font-medium'>Company Location:</span>
                 {load.transporterId.companyLocation}
               </div>
             )}
@@ -230,7 +226,7 @@ export default function LoadDetailsPage() {
         </Card>
 
         {/* Bid History */}
-        <Card className="md:col-span-2">
+        <Card className='md:col-span-2'>
           <CardHeader>
             <CardTitle>Bid History</CardTitle>
             <CardDescription>
@@ -250,7 +246,7 @@ export default function LoadDetailsPage() {
               <TableBody>
                 {load.bids.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={4} className="text-center">
+                    <TableCell colSpan={4} className='text-center'>
                       No bids placed yet
                     </TableCell>
                   </TableRow>
@@ -259,8 +255,8 @@ export default function LoadDetailsPage() {
                     <TableRow key={bid._id}>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{bid.bidBy.name}</p>
-                          <p className="text-sm text-muted-foreground">
+                          <p className='font-medium'>{bid.bidBy.name}</p>
+                          <p className='text-sm text-muted-foreground'>
                             {bid.bidBy.companyName}
                           </p>
                         </div>
@@ -274,8 +270,7 @@ export default function LoadDetailsPage() {
                               : bid.status === "REJECTED"
                               ? "destructive"
                               : "secondary"
-                          }
-                        >
+                          }>
                           {bid.status}
                         </Badge>
                       </TableCell>
