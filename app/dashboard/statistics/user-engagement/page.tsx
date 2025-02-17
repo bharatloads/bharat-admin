@@ -74,6 +74,16 @@ interface UserStatsResponse {
       truckers: number;
       transporters: number;
     }>;
+    searchStats: Array<{
+      _id: string;
+      searches: Array<{
+        action: string;
+        count: number;
+        uniqueUsers: number;
+        truckers: number;
+        transporters: number;
+      }>;
+    }>;
   };
 }
 
@@ -888,10 +898,10 @@ export default function UserEngagementPage() {
                     </p>
                     <p className='text-2xl font-bold'>
                       {Math.round(
-                        stats?.authStats.reduce(
+                        (stats?.authStats || []).reduce(
                           (acc, stat) => acc + stat.uniqueUsers.length,
                           0
-                        ) / stats?.authStats.length || 0
+                        ) / (stats?.authStats?.length || 1)
                       )}
                     </p>
                   </div>
@@ -942,6 +952,256 @@ export default function UserEngagementPage() {
                         (acc, stat) => acc + stat.totalVerifications,
                         0
                       ) || 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Add Search Stats Section */}
+      <div className='grid gap-6 md:grid-cols-2'>
+        <Card>
+          <CardHeader>
+            <CardTitle>Search Activity</CardTitle>
+            <CardDescription>Daily search patterns by type</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className='h-[300px]'>
+                <Skeleton className='h-full w-full' />
+              </div>
+            ) : (
+              <div className='h-[300px]'>
+                <ResponsiveContainer width='100%' height='100%'>
+                  <AreaChart
+                    data={stats?.searchStats.map((stat) => {
+                      const loadSearches = stat.searches.find(
+                        (s) => s.action === "LOAD_SEARCHED"
+                      ) || {
+                        count: 0,
+                        uniqueUsers: 0,
+                        truckers: 0,
+                        transporters: 0,
+                      };
+                      const truckSearches = stat.searches.find(
+                        (s) => s.action === "TRUCK_SEARCHED"
+                      ) || {
+                        count: 0,
+                        uniqueUsers: 0,
+                        truckers: 0,
+                        transporters: 0,
+                      };
+                      return {
+                        date: stat._id,
+                        loadSearches: loadSearches.count,
+                        loadSearchUsers: loadSearches.uniqueUsers,
+                        truckSearches: truckSearches.count,
+                        truckSearchUsers: truckSearches.uniqueUsers,
+                      };
+                    })}>
+                    <defs>
+                      <linearGradient
+                        id='colorSearches'
+                        x1='0'
+                        y1='0'
+                        x2='0'
+                        y2='1'>
+                        <stop
+                          offset='5%'
+                          stopColor='hsl(var(--chart-1))'
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset='95%'
+                          stopColor='hsl(var(--chart-1))'
+                          stopOpacity={0.1}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray='3 3' />
+                    <XAxis
+                      dataKey='date'
+                      tickFormatter={(value) => {
+                        const date = new Date(value);
+                        return date.toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        });
+                      }}
+                    />
+                    <YAxis />
+                    <Tooltip
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          const date = new Date(label);
+                          return (
+                            <div className='rounded-lg border bg-background p-2 shadow-sm'>
+                              <p className='text-[0.70rem] uppercase text-muted-foreground'>
+                                {date.toLocaleDateString("en-US", {
+                                  month: "long",
+                                  day: "numeric",
+                                  year: "numeric",
+                                })}
+                              </p>
+                              <div className='grid grid-cols-2 gap-2'>
+                                <div className='flex flex-col'>
+                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                    Load Searches
+                                  </span>
+                                  <span className='font-bold text-muted-foreground'>
+                                    {payload[0].value}
+                                  </span>
+                                  <span className='text-[0.70rem] text-muted-foreground'>
+                                    ({payload[1].value} users)
+                                  </span>
+                                </div>
+                                <div className='flex flex-col'>
+                                  <span className='text-[0.70rem] uppercase text-muted-foreground'>
+                                    Truck Searches
+                                  </span>
+                                  <span className='font-bold text-muted-foreground'>
+                                    {payload[2].value}
+                                  </span>
+                                  <span className='text-[0.70rem] text-muted-foreground'>
+                                    ({payload[3].value} users)
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                    <Area
+                      type='monotone'
+                      dataKey='loadSearches'
+                      name='Load Searches'
+                      stroke='hsl(var(--chart-1))'
+                      fill='url(#colorSearches)'
+                    />
+                    <Area
+                      type='monotone'
+                      dataKey='loadSearchUsers'
+                      name='Load Search Users'
+                      stroke='hsl(var(--chart-2))'
+                      fill='url(#colorSearches)'
+                    />
+                    <Area
+                      type='monotone'
+                      dataKey='truckSearches'
+                      name='Truck Searches'
+                      stroke='hsl(var(--chart-3))'
+                      fill='url(#colorSearches)'
+                    />
+                    <Area
+                      type='monotone'
+                      dataKey='truckSearchUsers'
+                      name='Truck Search Users'
+                      stroke='hsl(var(--chart-4))'
+                      fill='url(#colorSearches)'
+                    />
+                    <Legend />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Search Overview</CardTitle>
+            <CardDescription>Summary of search activity</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className='space-y-4'>
+                <Skeleton className='h-20 w-full' />
+                <Skeleton className='h-20 w-full' />
+              </div>
+            ) : (
+              <div className='space-y-4'>
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='space-y-2'>
+                    <p className='text-sm text-muted-foreground'>
+                      Total Load Searches
+                    </p>
+                    <p className='text-2xl font-bold'>
+                      {stats?.searchStats.reduce(
+                        (acc, stat) =>
+                          acc +
+                          (stat.searches.find(
+                            (s) => s.action === "LOAD_SEARCHED"
+                          )?.count || 0),
+                        0
+                      )}
+                    </p>
+                  </div>
+                  <div className='space-y-2'>
+                    <p className='text-sm text-muted-foreground'>
+                      Total Truck Searches
+                    </p>
+                    <p className='text-2xl font-bold'>
+                      {stats?.searchStats.reduce(
+                        (acc, stat) =>
+                          acc +
+                          (stat.searches.find(
+                            (s) => s.action === "TRUCK_SEARCHED"
+                          )?.count || 0),
+                        0
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <div className='grid grid-cols-2 gap-4'>
+                  <div className='space-y-2'>
+                    <p className='text-sm text-muted-foreground'>
+                      Most Active Search Day
+                    </p>
+                    <p className='text-2xl font-bold'>
+                      {stats?.searchStats.length
+                        ? new Date(
+                            stats.searchStats.reduce(
+                              (max, stat) => {
+                                const totalSearches = stat.searches.reduce(
+                                  (acc, s) => acc + s.count,
+                                  0
+                                );
+                                return totalSearches > max.total
+                                  ? { date: stat._id, total: totalSearches }
+                                  : max;
+                              },
+                              { date: "", total: 0 }
+                            ).date
+                          ).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : "N/A"}
+                    </p>
+                  </div>
+                  <div className='space-y-2'>
+                    <p className='text-sm text-muted-foreground'>
+                      Average Searches per Day
+                    </p>
+                    <p className='text-2xl font-bold'>
+                      {stats?.searchStats.length
+                        ? Math.round(
+                            stats.searchStats.reduce(
+                              (acc, stat) =>
+                                acc +
+                                stat.searches.reduce(
+                                  (sum, s) => sum + s.count,
+                                  0
+                                ),
+                              0
+                            ) / stats.searchStats.length
+                          )
+                        : 0}
                     </p>
                   </div>
                 </div>
