@@ -55,6 +55,7 @@ interface GetBidByIdResponse {
       companyName?: string;
     };
     loadId: {
+      _id: string;
       materialType: string;
       source: {
         placeName: string;
@@ -279,7 +280,14 @@ export default function BidDetailsPage() {
         {/* Load Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Load Information</CardTitle>
+            <CardTitle>
+              Load Information{" "}
+              <Button variant="ghost" size="icon">
+                <Link href={`/dashboard/loads/${bid.loadId._id}`}>
+                  <ExternalLink className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardTitle>
             <CardDescription>Details about the load</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

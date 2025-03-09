@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar } from "lucide-react";
+import { Calendar, Search } from "lucide-react";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,6 @@ import { GetLoadsParams, GetLoadsResponse, Load } from "@/types/api";
 import { fetcher, ApiError } from "@/lib/fetcher";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import debounce from "lodash/debounce";
 
 export default function LoadSearchPage() {
   const router = useRouter();
@@ -59,54 +58,47 @@ export default function LoadSearchPage() {
       date?.to
   );
 
-  // Debounced search function
-  const debouncedSearch = useCallback(
-    (params: GetLoadsParams) => {
-      const search = debounce(async (searchParams: GetLoadsParams) => {
-        try {
-          setIsLoading(true);
-          // Convert params to query string
-          const queryString = Object.entries(searchParams)
-            .filter(([_, value]) => value !== undefined && value !== "")
-            .map(([key, value]) => {
-              if (value instanceof Date) {
-                return `${key}=${value.toISOString()}`;
-              }
-              return `${key}=${value}`;
-            })
-            .join("&");
-
-          const data = await fetcher<GetLoadsResponse>(
-            `/admin/loads?${queryString}`
-          );
-          setData(data);
-        } catch (error) {
-          console.error("Error searching loads:", error);
-          if (error instanceof ApiError) {
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: error.message,
-            });
-          } else {
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to search loads",
-            });
+  // Replace debounced search with direct search function
+  const performSearch = async (params: GetLoadsParams) => {
+    try {
+      setIsLoading(true);
+      // Convert params to query string
+      const queryString = Object.entries(params)
+        .filter(([_, value]) => value !== undefined && value !== "")
+        .map(([key, value]) => {
+          if (value instanceof Date) {
+            return `${key}=${value.toISOString()}`;
           }
-        } finally {
-          setIsLoading(false);
-        }
-      }, 500);
+          return `${key}=${encodeURIComponent(String(value))}`;
+        })
+        .join("&");
 
-      search(params);
-    },
-    [toast]
-  );
+      const data = await fetcher<GetLoadsResponse>(
+        `/admin/search/loads?${queryString}`
+      );
+      setData(data);
+    } catch (error) {
+      console.error("Error searching loads:", error);
+      if (error instanceof ApiError) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to search loads",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Update search when filters change
-  useEffect(() => {
+  // Handle search button click
+  const handleSearch = () => {
     if (!hasActiveFilters) {
       setData(null);
       return;
@@ -117,7 +109,7 @@ export default function LoadSearchPage() {
       limit: 10,
     };
 
-    if (nameSearch) params.search = nameSearch;
+    if (nameSearch) params.transporterName = nameSearch;
     if (phoneSearch) params.phone = phoneSearch;
     if (sourceSearch) params.source = sourceSearch;
     if (destinationSearch) params.destination = destinationSearch;
@@ -125,16 +117,15 @@ export default function LoadSearchPage() {
     if (date?.to) params.endDate = format(date.to, "yyyy-MM-dd");
 
     setSearchParams(params);
-    debouncedSearch(params);
-  }, [
-    nameSearch,
-    phoneSearch,
-    sourceSearch,
-    destinationSearch,
-    date,
-    debouncedSearch,
-    hasActiveFilters,
-  ]);
+    performSearch(params);
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    const updatedParams = { ...searchParams, page: newPage };
+    setSearchParams(updatedParams);
+    performSearch(updatedParams);
+  };
 
   const handleViewLoad = (loadId: string) => {
     router.push(`/dashboard/loads/${loadId}`);
@@ -146,66 +137,79 @@ export default function LoadSearchPage() {
     setSourceSearch("");
     setDestinationSearch("");
     setDate(undefined);
+    setData(null);
+  };
+
+  // Handle Enter key press in input fields
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
   };
 
   return (
-    <div className='space-y-6'>
+    <div className="space-y-6">
       {/* Search Controls */}
-      <div className='rounded-lg border bg-card p-6'>
-        <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-lg font-semibold'>Search Loads</h2>
-          <Button variant='outline' onClick={handleClearFilters}>
+      <div className="rounded-lg border bg-card p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Search Loads</h2>
+          <Button variant="outline" onClick={handleClearFilters}>
             Clear Filters
           </Button>
         </div>
-        <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-          <div className='flex flex-col space-y-2'>
-            <label className='text-sm font-medium'>Transporter Name</label>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Transporter Name</label>
             <Input
-              placeholder='Search by name...'
+              placeholder="Search by name..."
               value={nameSearch}
               onChange={(e) => setNameSearch(e.target.value)}
-              className='w-full'
+              onKeyDown={handleKeyDown}
+              className="w-full"
             />
           </div>
-          <div className='flex flex-col space-y-2'>
-            <label className='text-sm font-medium'>Phone Number</label>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Phone Number</label>
             <Input
-              placeholder='Search by phone...'
+              placeholder="Search by phone..."
               value={phoneSearch}
               onChange={(e) => setPhoneSearch(e.target.value)}
-              className='w-full'
+              onKeyDown={handleKeyDown}
+              className="w-full"
             />
           </div>
-          <div className='flex flex-col space-y-2'>
-            <label className='text-sm font-medium'>Source Location</label>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Source Location</label>
             <Input
-              placeholder='Search by source...'
+              placeholder="Search by source..."
               value={sourceSearch}
               onChange={(e) => setSourceSearch(e.target.value)}
-              className='w-full'
+              onKeyDown={handleKeyDown}
+              className="w-full"
             />
           </div>
-          <div className='flex flex-col space-y-2'>
-            <label className='text-sm font-medium'>Destination Location</label>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Destination Location</label>
             <Input
-              placeholder='Search by destination...'
+              placeholder="Search by destination..."
               value={destinationSearch}
               onChange={(e) => setDestinationSearch(e.target.value)}
-              className='w-full'
+              onKeyDown={handleKeyDown}
+              className="w-full"
             />
           </div>
-          <div className='flex flex-col space-y-2 lg:col-span-2'>
-            <label className='text-sm font-medium'>Date Range</label>
+          <div className="flex flex-col space-y-2 lg:col-span-2">
+            <label className="text-sm font-medium">Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  variant='outline'
+                  variant="outline"
                   className={cn(
                     "justify-start text-left font-normal",
                     !date && "text-muted-foreground"
-                  )}>
-                  <Calendar className='mr-2 h-4 w-4' />
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
                   {date?.from ? (
                     date.to ? (
                       <>
@@ -220,10 +224,10 @@ export default function LoadSearchPage() {
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className='w-auto p-0' align='start'>
+              <PopoverContent className="w-auto p-0" align="start">
                 <CalendarComponent
                   initialFocus
-                  mode='range'
+                  mode="range"
                   defaultMonth={date?.from}
                   selected={date}
                   onSelect={setDate}
@@ -232,11 +236,27 @@ export default function LoadSearchPage() {
               </PopoverContent>
             </Popover>
           </div>
+          <div className="flex items-end lg:col-span-2">
+            <Button
+              onClick={handleSearch}
+              className="w-full"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <span>Searching...</span>
+              ) : (
+                <>
+                  <Search className="mr-2 h-4 w-4" />
+                  Search
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Results Table */}
-      <div className='rounded-lg border'>
+      <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -256,34 +276,34 @@ export default function LoadSearchPage() {
               Array.from({ length: 5 }, (_, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <Skeleton className='h-4 w-[150px]' />
+                    <Skeleton className="h-4 w-[150px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[100px]' />
+                    <Skeleton className="h-4 w-[100px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[120px]' />
+                    <Skeleton className="h-4 w-[120px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[120px]' />
+                    <Skeleton className="h-4 w-[120px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[60px]' />
+                    <Skeleton className="h-4 w-[60px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[80px]' />
+                    <Skeleton className="h-4 w-[80px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[80px]' />
+                    <Skeleton className="h-4 w-[80px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-8 w-[100px]' />
+                    <Skeleton className="h-8 w-[100px]" />
                   </TableCell>
                 </TableRow>
               ))
             ) : !hasActiveFilters ? (
               <TableRow>
-                <TableCell colSpan={8} className='text-center py-8'>
+                <TableCell colSpan={8} className="text-center py-8">
                   Enter search criteria to find loads
                 </TableCell>
               </TableRow>
@@ -293,7 +313,7 @@ export default function LoadSearchPage() {
                   <TableCell>
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className='cursor-help'>
+                        <span className="cursor-help">
                           {load.transporterId.name}
                         </span>
                       </TooltipTrigger>
@@ -313,20 +333,22 @@ export default function LoadSearchPage() {
                   <TableCell>
                     <Badge
                       variant={
-                        load.isActive === true
+                        new Date(load.expiresAt) > new Date()
                           ? "success"
-                          : load.isActive === false
-                          ? "destructive"
-                          : "secondary"
-                      }>
-                      {load.isActive ? "Active" : "Inactive"}
+                          : "destructive"
+                      }
+                    >
+                      {new Date(load.expiresAt) > new Date()
+                        ? "Active"
+                        : "Expired"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={() => handleViewLoad(load._id)}>
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewLoad(load._id)}
+                    >
                       View Details
                     </Button>
                   </TableCell>
@@ -334,7 +356,7 @@ export default function LoadSearchPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className='text-center'>
+                <TableCell colSpan={8} className="text-center">
                   No loads found
                 </TableCell>
               </TableRow>
@@ -344,10 +366,10 @@ export default function LoadSearchPage() {
       </div>
 
       {/* Pagination */}
-      {hasActiveFilters && (
-        <div className='flex items-center justify-between'>
-          <p className='text-sm text-muted-foreground'>
-            {data?.pagination.total
+      {data && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            {data.pagination.total
               ? `Showing ${
                   (searchParams.page - 1) * searchParams.limit + 1
                 } to ${Math.min(
@@ -356,23 +378,21 @@ export default function LoadSearchPage() {
                 )} of ${data.pagination.total} loads`
               : "No loads found"}
           </p>
-          <div className='flex gap-2'>
+          <div className="flex gap-2">
             <Button
-              variant='outline'
-              size='sm'
-              onClick={() =>
-                setSearchParams((p) => ({ ...p, page: p.page - 1 }))
-              }
-              disabled={searchParams.page <= 1 || isLoading}>
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(searchParams.page - 1)}
+              disabled={searchParams.page <= 1 || isLoading}
+            >
               Previous
             </Button>
             <Button
-              variant='outline'
-              size='sm'
-              onClick={() =>
-                setSearchParams((p) => ({ ...p, page: p.page + 1 }))
-              }
-              disabled={!data || !data.pagination.hasMore || isLoading}>
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(searchParams.page + 1)}
+              disabled={!data || !data.pagination.hasMore || isLoading}
+            >
               Next
             </Button>
           </div>

@@ -56,6 +56,8 @@ export interface GetTrucksParams {
   page: number;
   limit: number;
   search?: string;
+  ownerName?: string;
+  location?: string;
   phone?: string;
   truckNumber?: string;
   truckType?: string;
@@ -98,6 +100,7 @@ export interface Truck {
   expiresAt: string;
   createdAt: string;
   updatedAt: string;
+  truckCapacity: number;
 }
 
 export interface GetTrucksResponse {
@@ -161,6 +164,8 @@ export interface Bid {
     truckType: string;
   };
   status: "PENDING" | "ACCEPTED" | "REJECTED";
+  rejectionReason?: string;
+  rejectionNote?: string;
   biddedAmount: {
     total: number;
     advanceAmount: number;
@@ -221,14 +226,15 @@ export interface Load {
     dieselAmount: number;
   };
   isActive: boolean;
-  expiresAt: string;
-  createdAt: string;
+  expiresAt: Date;
+  createdAt: Date;
 }
 
 export interface GetLoadsParams {
   page: number;
   limit: number;
   search?: string;
+  transporterName?: string;
   phone?: string;
   source?: string;
   destination?: string;
