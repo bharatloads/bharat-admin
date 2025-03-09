@@ -24,7 +24,7 @@ import { GetLoadsParams, GetLoadsResponse, Load } from "@/types/api";
 import { fetcher, ApiError } from "@/lib/fetcher";
 import { useToast } from "@/hooks/use-toast";
 
-const getTimeStatus = (expiresAt: string) => {
+const getTimeStatus = (expiresAt: string | Date) => {
   const now = new Date();
   const expiryDate = new Date(expiresAt);
   const diffInMs = expiryDate.getTime() - now.getTime();
@@ -122,37 +122,37 @@ export default function LoadsPage() {
   };
 
   return (
-    <div className='space-y-6'>
+    <div className="space-y-6">
       {/* Stats Section */}
-      <div className='grid gap-4 md:grid-cols-3'>
-        <div className='rounded-lg border bg-card p-6'>
-          <div className='flex items-center gap-2'>
-            <Package className='h-4 w-4 text-muted-foreground' />
-            <h3 className='text-sm font-medium'>Total Loads</h3>
+      <div className="grid gap-4 md:grid-cols-3">
+        <div className="rounded-lg border bg-card p-6">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-medium">Total Loads</h3>
           </div>
-          <div className='mt-4'>
+          <div className="mt-4">
             {isLoading ? (
-              <Skeleton className='h-7 w-20' />
+              <Skeleton className="h-7 w-20" />
             ) : (
               <NumberTicker
                 value={data?.stats.totalLoads || 0}
-                className='text-2xl font-bold'
+                className="text-2xl font-bold"
               />
             )}
           </div>
         </div>
-        <div className='rounded-lg border bg-card p-6'>
-          <div className='flex items-center gap-2'>
-            <CheckCircle className='h-4 w-4 text-muted-foreground' />
-            <h3 className='text-sm font-medium'>Active Loads</h3>
+        <div className="rounded-lg border bg-card p-6">
+          <div className="flex items-center gap-2">
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-medium">Active Loads</h3>
           </div>
-          <div className='mt-4'>
+          <div className="mt-4">
             {isLoading ? (
-              <Skeleton className='h-7 w-20' />
+              <Skeleton className="h-7 w-20" />
             ) : (
               <NumberTicker
                 value={data?.stats.activeLoads || 0}
-                className='text-2xl font-bold'
+                className="text-2xl font-bold"
               />
             )}
           </div>
@@ -160,7 +160,7 @@ export default function LoadsPage() {
       </div>
 
       {/* Loads Table */}
-      <div className='rounded-lg border'>
+      <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -181,31 +181,31 @@ export default function LoadsPage() {
               Array.from({ length: 5 }).map((_, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <Skeleton className='h-4 w-[150px]' />
+                    <Skeleton className="h-4 w-[150px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[100px]' />
+                    <Skeleton className="h-4 w-[100px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[120px]' />
+                    <Skeleton className="h-4 w-[120px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[120px]' />
+                    <Skeleton className="h-4 w-[120px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[60px]' />
+                    <Skeleton className="h-4 w-[60px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[80px]' />
+                    <Skeleton className="h-4 w-[80px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[80px]' />
+                    <Skeleton className="h-4 w-[80px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[100px]' />
+                    <Skeleton className="h-4 w-[100px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-8 w-[100px]' />
+                    <Skeleton className="h-8 w-[100px]" />
                   </TableCell>
                 </TableRow>
               ))
@@ -215,7 +215,7 @@ export default function LoadsPage() {
                   <TableCell>
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className='cursor-help'>
+                        <span className="cursor-help">
                           {load.transporterId.name}
                         </span>
                       </TooltipTrigger>
@@ -247,20 +247,21 @@ export default function LoadsPage() {
                   <TableCell>
                     {new Date(load.expiresAt).getTime() <
                     new Date().getTime() ? (
-                      <Badge variant='destructive'>
-                        {getTimeStatus(load.expiresAt)}
+                      <Badge variant="destructive">
+                        {getTimeStatus(load.expiresAt.toISOString())}
                       </Badge>
                     ) : (
-                      <Badge variant='success'>
-                        {getTimeStatus(load.expiresAt)}
+                      <Badge variant="success">
+                        {getTimeStatus(load.expiresAt.toISOString())}
                       </Badge>
                     )}
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={() => handleViewLoad(load._id)}>
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewLoad(load._id)}
+                    >
                       View Details
                     </Button>
                   </TableCell>
@@ -268,7 +269,7 @@ export default function LoadsPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className='text-center'>
+                <TableCell colSpan={8} className="text-center">
                   No loads found
                 </TableCell>
               </TableRow>
@@ -278,8 +279,8 @@ export default function LoadsPage() {
       </div>
 
       {/* Pagination */}
-      <div className='flex items-center justify-between'>
-        <p className='text-sm text-muted-foreground'>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
           {data?.pagination.total
             ? `Showing ${(params.page - 1) * params.limit + 1} to ${Math.min(
                 params.page * params.limit,
@@ -287,23 +288,25 @@ export default function LoadsPage() {
               )} of ${data.pagination.total} loads`
             : "No loads found"}
         </p>
-        <div className='flex gap-2'>
+        <div className="flex gap-2">
           <Button
-            variant='outline'
-            size='sm'
+            variant="outline"
+            size="sm"
             onClick={() =>
               setParams((p: GetLoadsParams) => ({ ...p, page: p.page - 1 }))
             }
-            disabled={params.page <= 1 || isLoading}>
+            disabled={params.page <= 1 || isLoading}
+          >
             Previous
           </Button>
           <Button
-            variant='outline'
-            size='sm'
+            variant="outline"
+            size="sm"
             onClick={() =>
               setParams((p: GetLoadsParams) => ({ ...p, page: p.page + 1 }))
             }
-            disabled={!data || !data.pagination.hasMore || isLoading}>
+            disabled={!data || !data.pagination.hasMore || isLoading}
+          >
             Next
           </Button>
         </div>
