@@ -14,3 +14,8 @@ export function convertToTitleCase(str: string) {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
+
+// limit the string to the given length
+export function limitString(str: string, length: number) {
+  return str.slice(0, length);
+}

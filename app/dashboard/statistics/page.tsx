@@ -36,7 +36,7 @@ import { NumberTicker } from "@/components/ui/number-ticker";
 import { fetcher, ApiError } from "@/lib/fetcher";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { limitString } from "@/lib/utils";
 interface StatsResponse {
   success: boolean;
   data: {
@@ -573,7 +573,8 @@ export default function StatsPage() {
                     >
                       <div>
                         <p className="text-sm font-medium">
-                          {route._id.source} → {route._id.destination}
+                          {limitString(route._id.source, 10)} →{" "}
+                          {limitString(route._id.destination, 10)}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {route.count} loads

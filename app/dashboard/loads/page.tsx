@@ -24,7 +24,7 @@ import { GetLoadsParams, GetLoadsResponse, Load } from "@/types/api";
 import { fetcher, ApiError } from "@/lib/fetcher";
 import { useToast } from "@/hooks/use-toast";
 
-const getTimeStatus = (expiresAt: string | Date) => {
+const getTimeStatus = (expiresAt: string) => {
   const now = new Date();
   const expiryDate = new Date(expiresAt);
   const diffInMs = expiryDate.getTime() - now.getTime();
@@ -248,11 +248,11 @@ export default function LoadsPage() {
                     {new Date(load.expiresAt).getTime() <
                     new Date().getTime() ? (
                       <Badge variant="destructive">
-                        {getTimeStatus(load.expiresAt.toISOString())}
+                        {getTimeStatus(load.expiresAt)}
                       </Badge>
                     ) : (
                       <Badge variant="success">
-                        {getTimeStatus(load.expiresAt.toISOString())}
+                        {getTimeStatus(load.expiresAt)}
                       </Badge>
                     )}
                   </TableCell>

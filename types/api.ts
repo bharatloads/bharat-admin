@@ -226,8 +226,8 @@ export interface Load {
     dieselAmount: number;
   };
   isActive: boolean;
-  expiresAt: Date;
-  createdAt: Date;
+  expiresAt: string;
+  createdAt: string;
 }
 
 export interface GetLoadsParams {
