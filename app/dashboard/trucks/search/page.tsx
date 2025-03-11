@@ -269,12 +269,6 @@ export default function TruckSearchPage() {
                   </TableCell>
                 </TableRow>
               ))
-            ) : !hasActiveFilters ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  Enter search criteria to find trucks
-                </TableCell>
-              </TableRow>
             ) : data?.trucks.length ? (
               data.trucks.map((truck: TruckType) => (
                 <TableRow key={truck._id}>

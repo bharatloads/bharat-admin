@@ -301,12 +301,6 @@ export default function LoadSearchPage() {
                   </TableCell>
                 </TableRow>
               ))
-            ) : !hasActiveFilters ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-8">
-                  Enter search criteria to find loads
-                </TableCell>
-              </TableRow>
             ) : data?.loads.length ? (
               data.loads.map((load: Load) => (
                 <TableRow key={load._id}>

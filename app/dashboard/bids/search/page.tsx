@@ -67,19 +67,22 @@ export default function BidSearchPage() {
       const search = debounce(async (searchParams: GetBidsParams) => {
         try {
           setIsLoading(true);
-          // Convert params to query string
-          const queryString = Object.entries(searchParams)
-            .filter(([_, value]) => value !== undefined && value !== "")
-            .map(([key, value]) => {
-              if (value instanceof Date) {
-                return `${key}=${value.toISOString()}`;
-              }
-              return `${key}=${value}`;
-            })
-            .join("&");
+          // Convert params to query string, filtering out empty values
+          const queryParams = new URLSearchParams();
 
+          Object.entries(searchParams).forEach(([key, value]) => {
+            if (value !== undefined && value !== "" && value !== " ") {
+              if (value instanceof Date) {
+                queryParams.append(key, value.toISOString());
+              } else {
+                queryParams.append(key, String(value));
+              }
+            }
+          });
+
+          const queryString = queryParams.toString();
           const data = await fetcher<GetBidsResponse>(
-            `/admin/bids?${queryString}`
+            `/admin/search/bids?${queryString}`
           );
           setData(data);
         } catch (error) {
@@ -115,8 +118,8 @@ export default function BidSearchPage() {
     }
 
     const params: GetBidsParams = {
-      page: 1,
-      limit: 10,
+      page: searchParams.page,
+      limit: searchParams.limit,
     };
 
     if (nameSearch) params.search = nameSearch;
@@ -134,6 +137,8 @@ export default function BidSearchPage() {
     bidType,
     status,
     date,
+    searchParams.page,
+    searchParams.limit,
     debouncedSearch,
     hasActiveFilters,
   ]);
@@ -148,75 +153,80 @@ export default function BidSearchPage() {
     setBidType("");
     setStatus("");
     setDate(undefined);
+    setSearchParams({
+      page: 1,
+      limit: 10,
+    });
   };
 
   return (
-    <div className='space-y-6'>
+    <div className="space-y-6">
       {/* Search Controls */}
-      <div className='rounded-lg border bg-card p-6'>
-        <div className='mb-4 flex items-center justify-between'>
-          <h2 className='text-lg font-semibold'>Search Bids</h2>
-          <Button variant='outline' onClick={handleClearFilters}>
+      <div className="rounded-lg border bg-card p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Search Bids</h2>
+          <Button variant="outline" onClick={handleClearFilters}>
             Clear Filters
           </Button>
         </div>
-        <div className='grid gap-4 md:grid-cols-2 lg:grid-cols-4'>
-          <div className='flex flex-col space-y-2'>
-            <label className='text-sm font-medium'>Bidder Name</label>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Name Search</label>
             <Input
-              placeholder='Search by name...'
+              placeholder="Search by bidder/offered name..."
               value={nameSearch}
               onChange={(e) => setNameSearch(e.target.value)}
-              className='w-full'
+              className="w-full"
             />
           </div>
-          <div className='flex flex-col space-y-2'>
-            <label className='text-sm font-medium'>Phone Number</label>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Phone Number</label>
             <Input
-              placeholder='Search by phone...'
+              placeholder="Search by phone..."
               value={phoneSearch}
               onChange={(e) => setPhoneSearch(e.target.value)}
-              className='w-full'
+              className="w-full"
             />
           </div>
-          <div className='flex flex-col space-y-2'>
-            <label className='text-sm font-medium'>Bid Type</label>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Bid Type</label>
             <Select value={bidType} onValueChange={setBidType}>
               <SelectTrigger>
-                <SelectValue placeholder='Select type' />
+                <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=' '>All</SelectItem>
-                <SelectItem value='LOAD_BID'>Load Bid</SelectItem>
-                <SelectItem value='TRUCK_REQUEST'>Truck Request</SelectItem>
+                <SelectItem value=" ">All</SelectItem>
+                <SelectItem value="LOAD_BID">Load Bid</SelectItem>
+                <SelectItem value="TRUCK_REQUEST">Truck Request</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className='flex flex-col space-y-2'>
-            <label className='text-sm font-medium'>Status</label>
+          <div className="flex flex-col space-y-2">
+            <label className="text-sm font-medium">Status</label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger>
-                <SelectValue placeholder='Select status' />
+                <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value=' '>All</SelectItem>
-                <SelectItem value='PENDING'>Pending</SelectItem>
-                <SelectItem value='ACCEPTED'>Accepted</SelectItem>
-                <SelectItem value='REJECTED'>Rejected</SelectItem>
+                <SelectItem value=" ">All</SelectItem>
+                <SelectItem value="PENDING">Pending</SelectItem>
+                <SelectItem value="ACCEPTED">Accepted</SelectItem>
+                <SelectItem value="REJECTED">Rejected</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          <div className='flex flex-col space-y-2 lg:col-span-2'>
-            <label className='text-sm font-medium'>Date Range</label>
+          <div className="flex flex-col space-y-2 lg:col-span-2">
+            <label className="text-sm font-medium">Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  variant='outline'
+                  variant="outline"
                   className={cn(
                     "justify-start text-left font-normal",
                     !date && "text-muted-foreground"
-                  )}>
-                  <Calendar className='mr-2 h-4 w-4' />
+                  )}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
                   {date?.from ? (
                     date.to ? (
                       <>
@@ -231,10 +241,10 @@ export default function BidSearchPage() {
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className='w-auto p-0' align='start'>
+              <PopoverContent className="w-auto p-0" align="start">
                 <CalendarComponent
                   initialFocus
-                  mode='range'
+                  mode="range"
                   defaultMonth={date?.from}
                   selected={date}
                   onSelect={setDate}
@@ -247,7 +257,7 @@ export default function BidSearchPage() {
       </div>
 
       {/* Results Table */}
-      <div className='rounded-lg border'>
+      <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -267,34 +277,34 @@ export default function BidSearchPage() {
               Array.from({ length: 5 }, (_, index) => (
                 <TableRow key={index}>
                   <TableCell>
-                    <Skeleton className='h-4 w-[150px]' />
+                    <Skeleton className="h-4 w-[150px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[150px]' />
+                    <Skeleton className="h-4 w-[150px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[100px]' />
+                    <Skeleton className="h-4 w-[100px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[200px]' />
+                    <Skeleton className="h-4 w-[200px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[80px]' />
+                    <Skeleton className="h-4 w-[80px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[80px]' />
+                    <Skeleton className="h-4 w-[80px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-4 w-[100px]' />
+                    <Skeleton className="h-4 w-[100px]" />
                   </TableCell>
                   <TableCell>
-                    <Skeleton className='h-8 w-[100px]' />
+                    <Skeleton className="h-8 w-[100px]" />
                   </TableCell>
                 </TableRow>
               ))
             ) : !hasActiveFilters ? (
               <TableRow>
-                <TableCell colSpan={8} className='text-center py-8'>
+                <TableCell colSpan={8} className="text-center py-8">
                   Enter search criteria to find bids
                 </TableCell>
               </TableRow>
@@ -304,10 +314,10 @@ export default function BidSearchPage() {
                   <TableCell>
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className='cursor-help'>
+                        <span className="cursor-help">
                           {bid.bidBy.name}
                           {bid.bidBy.companyName && (
-                            <span className='text-xs text-muted-foreground block'>
+                            <span className="text-xs text-muted-foreground block">
                               {bid.bidBy.companyName}
                             </span>
                           )}
@@ -324,10 +334,10 @@ export default function BidSearchPage() {
                   <TableCell>
                     <Tooltip>
                       <TooltipTrigger>
-                        <span className='cursor-help'>
+                        <span className="cursor-help">
                           {bid.offeredTo.name}
                           {bid.offeredTo.companyName && (
-                            <span className='text-xs text-muted-foreground block'>
+                            <span className="text-xs text-muted-foreground block">
                               {bid.offeredTo.companyName}
                             </span>
                           )}
@@ -342,27 +352,27 @@ export default function BidSearchPage() {
                     </Tooltip>
                   </TableCell>
                   <TableCell>
-                    <Badge variant='secondary'>
+                    <Badge variant="secondary">
                       {bid.bidType === "LOAD_BID" ? "Load" : "Truck"}
                     </Badge>
                   </TableCell>
                   <TableCell>
                     {bid.bidType === "LOAD_BID" ? (
                       <div>
-                        <p className='font-medium'>
+                        <p className="font-medium">
                           {bid.loadId?.materialType}
                         </p>
-                        <p className='text-sm text-muted-foreground'>
+                        <p className="text-sm text-muted-foreground">
                           {bid.loadId?.source.placeName} →{" "}
                           {bid.loadId?.destination.placeName}
                         </p>
                       </div>
                     ) : (
                       <div>
-                        <p className='font-medium'>
+                        <p className="font-medium">
                           {bid.truckId?.truckNumber}
                         </p>
-                        <p className='text-sm text-muted-foreground'>
+                        <p className="text-sm text-muted-foreground">
                           {bid.truckId?.truckLocation.placeName} -{" "}
                           {bid.truckId?.truckType}
                         </p>
@@ -371,8 +381,8 @@ export default function BidSearchPage() {
                   </TableCell>
                   <TableCell>
                     <div>
-                      <p className='font-medium'>₹{bid.biddedAmount.total}</p>
-                      <p className='text-xs text-muted-foreground'>
+                      <p className="font-medium">₹{bid.biddedAmount.total}</p>
+                      <p className="text-xs text-muted-foreground">
                         {bid.bidType === "LOAD_BID" && bid.loadId
                           ? `Original: ₹${bid.loadId.offeredAmount.total}`
                           : ""}
@@ -387,7 +397,8 @@ export default function BidSearchPage() {
                           : bid.status === "REJECTED"
                           ? "destructive"
                           : "secondary"
-                      }>
+                      }
+                    >
                       {bid.status}
                     </Badge>
                   </TableCell>
@@ -396,9 +407,10 @@ export default function BidSearchPage() {
                   </TableCell>
                   <TableCell>
                     <Button
-                      variant='outline'
-                      size='sm'
-                      onClick={() => handleViewBid(bid._id)}>
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewBid(bid._id)}
+                    >
                       View Details
                     </Button>
                   </TableCell>
@@ -406,8 +418,8 @@ export default function BidSearchPage() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={8} className='text-center'>
-                  No bids found
+                <TableCell colSpan={8} className="text-center py-8">
+                  No bids found matching your search criteria
                 </TableCell>
               </TableRow>
             )}
@@ -416,35 +428,35 @@ export default function BidSearchPage() {
       </div>
 
       {/* Pagination */}
-      {hasActiveFilters && (
-        <div className='flex items-center justify-between'>
-          <p className='text-sm text-muted-foreground'>
-            {data?.pagination.total
-              ? `Showing ${
-                  (searchParams.page - 1) * searchParams.limit + 1
-                } to ${Math.min(
-                  searchParams.page * searchParams.limit,
-                  data.pagination.total
-                )} of ${data.pagination.total} bids`
-              : "No bids found"}
+      {data && data.pagination.total > 0 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {(searchParams.page - 1) * searchParams.limit + 1} to{" "}
+            {Math.min(
+              searchParams.page * searchParams.limit,
+              data.pagination.total
+            )}{" "}
+            of {data.pagination.total} bids
           </p>
-          <div className='flex gap-2'>
+          <div className="flex gap-2">
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() =>
                 setSearchParams((p) => ({ ...p, page: p.page - 1 }))
               }
-              disabled={searchParams.page <= 1 || isLoading}>
+              disabled={searchParams.page <= 1 || isLoading}
+            >
               Previous
             </Button>
             <Button
-              variant='outline'
-              size='sm'
+              variant="outline"
+              size="sm"
               onClick={() =>
                 setSearchParams((p) => ({ ...p, page: p.page + 1 }))
               }
-              disabled={!data || !data.pagination.hasMore || isLoading}>
+              disabled={!data.pagination.hasMore || isLoading}
+            >
               Next
             </Button>
           </div>

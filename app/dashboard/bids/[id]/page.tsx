@@ -78,6 +78,7 @@ interface GetBidByIdResponse {
       scheduleDate?: string;
     };
     truckId: {
+      _id: string;
       truckNumber: string;
       truckLocation: {
         placeName: string;
@@ -261,6 +262,11 @@ export default function BidDetailsPage() {
               <User className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">Name:</span>
               {bid.bidBy.name}
+              <Button variant="ghost" size="icon">
+                <Link href={`/dashboard/user/${bid.bidBy._id}`}>
+                  <ExternalLink className="h-4 w-4" />
+                </Link>
+              </Button>
             </div>
             <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-muted-foreground" />
@@ -368,7 +374,14 @@ export default function BidDetailsPage() {
         {/* Truck Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Truck Information</CardTitle>
+            <CardTitle>
+              Truck Information{" "}
+              <Button variant="ghost" size="icon">
+                <Link href={`/dashboard/trucks/${bid.truckId._id}`}>
+                  <ExternalLink className="h-4 w-4" />
+                </Link>
+              </Button>
+            </CardTitle>
             <CardDescription>Details about the truck</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
