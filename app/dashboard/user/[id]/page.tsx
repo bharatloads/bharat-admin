@@ -36,7 +36,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function UserDetailsPage() {
   const { id } = useParams();
@@ -48,48 +51,50 @@ export default function UserDetailsPage() {
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [userDetails, setUserDetails] = useState<User | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchUserData = async () => {
+    try {
+      setIsLoading(true);
+      const data = await fetcher<GetUserByIdResponse>(`/admin/users/${id}`);
+      setUser(data.user);
+      setUserDetails(data.user);
+      if (data.user) {
+        if (data.user.userType === "TRUCKER") {
+          const truckData = (await fetcher(`/admin/trucks/user/${id}`)) as {
+            trucks: Truck[];
+          };
+          setTrucks(truckData.trucks);
+        } else if (data.user.userType === "TRANSPORTER") {
+          const loadData = (await fetcher(`/admin/loads/user/${id}`)) as {
+            loads: Load[];
+          };
+          setLoads(loadData.loads);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      if (error instanceof ApiError) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch user details",
+        });
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        setIsLoading(true);
-        const data = await fetcher<GetUserByIdResponse>(`/admin/users/${id}`);
-        setUser(data.user);
-        if (data.user) {
-          if (data.user.userType === "TRUCKER") {
-            const truckData = (await fetcher(`/admin/trucks/user/${id}`)) as {
-              trucks: Truck[];
-            };
-            setTrucks(truckData.trucks);
-          } else if (data.user.userType === "TRANSPORTER") {
-            const loadData = (await fetcher(`/admin/loads/user/${id}`)) as {
-              loads: Load[];
-            };
-            setLoads(loadData.loads);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error);
-        if (error instanceof ApiError) {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: error.message,
-          });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to fetch user details",
-          });
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (id) {
-      fetchUser();
+      fetchUserData();
     }
   }, [id, toast]);
 
@@ -116,9 +121,54 @@ export default function UserDetailsPage() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    // Logic to update user details
-    // After updating, refetch user details
-    setIsDialogOpen(false);
+
+    if (!userDetails) return;
+
+    try {
+      setIsSubmitting(true);
+
+      // Ensure we're sending the correct data structure
+      const updateData = {
+        name: userDetails.name,
+        companyName: userDetails.companyName || "",
+        companyLocation: userDetails.companyLocation || "",
+        mobile: {
+          countryCode: userDetails.mobile?.countryCode || "",
+          phone: userDetails.mobile?.phone || "",
+        },
+      };
+
+      const response = await fetcher(`/admin/users/${id}`, {
+        method: "PUT",
+        body: updateData,
+      });
+
+      toast({
+        title: "Success",
+        description: "User details updated successfully",
+      });
+
+      // Refetch user data to update the UI
+      await fetchUserData();
+      setIsDialogOpen(false);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      if (error instanceof ApiError) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: error.message,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update user details",
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
@@ -154,83 +204,88 @@ export default function UserDetailsPage() {
         <h1 className="text-2xl font-bold">User Details</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-blue-600 text-white">Edit Details</Button>
+            <Button className="border border-gray-300 text-primary">
+              Edit Details
+            </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Edit User Details</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  value={userDetails?.name || ""}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  className="border rounded p-2 w-full"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Company Name
-                </label>
-                <input
-                  type="text"
-                  value={userDetails?.companyName || ""}
-                  onChange={(e) =>
-                    handleInputChange("companyName", e.target.value)
-                  }
-                  className="border rounded p-2 w-full"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Company Location
-                </label>
-                <input
-                  type="text"
-                  value={userDetails?.companyLocation || ""}
-                  onChange={(e) =>
-                    handleInputChange("companyLocation", e.target.value)
-                  }
-                  className="border rounded p-2 w-full"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">
-                  Mobile Number
-                </label>
-                <div className="flex">
-                  <input
-                    type="text"
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
+                  </Label>
+                  <Input
+                    id="name"
+                    value={userDetails?.name || ""}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    className="col-span-3"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="companyName" className="text-right">
+                    Company Name
+                  </Label>
+                  <Input
+                    id="companyName"
+                    value={userDetails?.companyName || ""}
+                    onChange={(e) =>
+                      handleInputChange("companyName", e.target.value)
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="companyLocation" className="text-right">
+                    Company Location
+                  </Label>
+                  <Input
+                    id="companyLocation"
+                    value={userDetails?.companyLocation || ""}
+                    onChange={(e) =>
+                      handleInputChange("companyLocation", e.target.value)
+                    }
+                    className="col-span-3"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="countryCode" className="text-right">
+                    Country Code
+                  </Label>
+                  <Input
+                    id="countryCode"
                     value={userDetails?.mobile?.countryCode || ""}
                     onChange={(e) =>
                       handleMobileChange("countryCode", e.target.value)
                     }
-                    className="border rounded p-2 w-1/4 mr-2"
-                    placeholder="Country Code"
+                    className="col-span-3"
                     required
                   />
-                  <input
-                    type="text"
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="phone" className="text-right">
+                    Phone Number
+                  </Label>
+                  <Input
+                    id="phone"
                     value={userDetails?.mobile?.phone || ""}
                     onChange={(e) =>
                       handleMobileChange("phone", e.target.value)
                     }
-                    className="border rounded p-2 w-3/4"
-                    placeholder="Phone Number"
+                    className="col-span-3"
                     required
                   />
                 </div>
               </div>
-              <div className="mt-4">
-                <Button type="submit" className="bg-green-600 text-white">
-                  Submit
+              <DialogFooter>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : "Save changes"}
                 </Button>
-              </div>
+              </DialogFooter>
             </form>
           </DialogContent>
         </Dialog>

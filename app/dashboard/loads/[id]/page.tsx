@@ -41,6 +41,7 @@ import { fetcher, ApiError } from "@/lib/fetcher";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { convertToTitleCase } from "@/lib/utils";
+import { EntityLogs } from "@/components/entity-logs";
 export default function LoadDetailsPage() {
   const params = useParams();
   const router = useRouter();
@@ -129,6 +130,10 @@ export default function LoadDetailsPage() {
             {new Date(load.expiresAt) < new Date() ? "Expired" : "Active"}
           </Badge>
         </div>
+        {/* add edit button here that redirects to /dashboard/loads/[id]/edit */}
+        <Button variant="ghost" className="border border-gray-300 text-primary">
+          <Link href={`/dashboard/loads/${load._id}/edit`}>Edit</Link>
+        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -327,6 +332,10 @@ export default function LoadDetailsPage() {
               </TableBody>
             </Table>
           </CardContent>
+        </Card>
+        {/* Activity Logs */}
+        <Card className="md:col-span-2">
+          <EntityLogs entityType="LOAD_POST" entityId={load._id} />
         </Card>
       </div>
     </div>

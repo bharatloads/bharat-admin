@@ -46,7 +46,7 @@ export async function fetcher<T>(
       method,
       url: fullUrl,
       headers: requestHeaders,
-      data: JSON.stringify(body),
+      data: body,
     });
 
     return response.data as T;

@@ -201,6 +201,10 @@ export default function TruckDetailsPage() {
             </Button>
           </div>
         )}
+        {/* add edit button here that redirects to /dashboard/trucks/[id]/edit */}
+        <Button variant="ghost" className="border border-gray-300 text-primary">
+          <Link href={`/dashboard/trucks/${truck._id}/edit`}>Edit</Link>
+        </Button>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

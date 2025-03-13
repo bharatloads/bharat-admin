@@ -24,6 +24,7 @@ interface EntityLog {
     _id: string;
     name: string;
     userType: string;
+    username: string;
   };
   changes: Record<string, unknown> | null;
   metadata: Record<string, unknown> | null;
@@ -134,15 +135,10 @@ export function EntityLogs({ entityType, entityId }: EntityLogsProps) {
                 <div className="flex-1">
                   <p>{log.description}</p>
                   <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>by {log.performedBy.name}</span>
+                    <span>by {log.performedBy?.name || "Admin"}</span>
                     <span>•</span>
                     <span>{format(new Date(log.createdAt), "PPp")}</span>
                   </div>
-                  {log.changes && (
-                    <pre className="mt-2 rounded-lg bg-muted p-2 text-xs">
-                      {JSON.stringify(log.changes, null, 2)}
-                    </pre>
-                  )}
                 </div>
               </div>
             ))}
