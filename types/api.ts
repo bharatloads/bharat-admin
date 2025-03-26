@@ -219,6 +219,10 @@ export interface Load {
     placeName: string;
     coordinates: [number, number];
   };
+  vehicleBodyType: string;
+  vehicleType: string;
+  numberOfWheels: number;
+  weight: number;
   bids: string[];
   offeredAmount: {
     total: number;

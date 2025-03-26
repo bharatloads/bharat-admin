@@ -320,7 +320,7 @@ export default function EditTruckPage() {
                 />
               </div>
 
-              <Separator />
+              {/* <Separator />
 
               <FormField
                 control={form.control}
@@ -334,7 +334,7 @@ export default function EditTruckPage() {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </CardContent>
           </Card>
 
@@ -380,9 +380,27 @@ export default function EditTruckPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Truck Body Type</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select truck body type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="OPEN_FULL_BODY">
+                            Open Full Body
+                          </SelectItem>
+                          <SelectItem value="OPEN_HALF_BODY">
+                            Open Half Body
+                          </SelectItem>
+                          <SelectItem value="FULL_CLOSED_BODY">
+                            Full Closed Body
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

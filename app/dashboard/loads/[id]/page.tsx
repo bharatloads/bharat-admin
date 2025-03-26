@@ -131,9 +131,14 @@ export default function LoadDetailsPage() {
           </Badge>
         </div>
         {/* add edit button here that redirects to /dashboard/loads/[id]/edit */}
-        <Button variant="ghost" className="border border-gray-300 text-primary">
-          <Link href={`/dashboard/loads/${load._id}/edit`}>Edit</Link>
-        </Button>
+        <Link href={`/dashboard/loads/${load._id}/edit`}>
+          <Button
+            variant="ghost"
+            className="border border-gray-300 text-primary"
+          >
+            Edit
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -201,10 +206,15 @@ export default function LoadDetailsPage() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <span className="font-medium">Weight:</span>
+              <p>{load.weight} Tonnes </p>
+            </div>
+            <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span className="font-medium">Posted:</span>
               {load.createdAt ? format(new Date(load.createdAt), "PPP") : "N/A"}
             </div>
+            {/* weight */}
           </CardContent>
         </Card>
 
