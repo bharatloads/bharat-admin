@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BharatLoads Admin Portal
+
+This is a comprehensive admin portal for BharatLoads, a logistics platform connecting truckers and transporters across India. The platform includes a modern, animated landing page and a dashboard for managing platform operations.
+
+## Features
+
+- **Interactive Landing Page**: Beautifully designed landing page with multiple animated sections including features, statistics, testimonials, and FAQs.
+- **Admin Dashboard**: Complete dashboard for managing users, trucks, loads, bids, and other platform operations.
+
+- **Responsive Design**: Fully responsive design that works seamlessly on desktops, tablets, and mobile devices.
+
+- **Modern UI**: Built with the latest UI components from Radix UI and styled with Tailwind CSS.
+
+- **Animations**: Rich animations built with Framer Motion for an engaging user experience.
 
 ## Getting Started
 
-First, run the development server:
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/bharat-admin.git
+cd bharat-admin
+```
+
+2. Install dependencies:
+
+```bash
+# Option 1: Use our installation script
+node install-deps.js
+
+# Option 2: Install manually
+npm install
+```
+
+3. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the landing page.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Landing Page Sections
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The landing page includes the following sections:
 
-## Learn More
+- **Hero Section**: Main introduction with animated text rotation and meteor effects
+- **Features Section**: Grid of key platform features with icons and descriptions
+- **Stats Section**: Animated counters showing key statistics
+- **Globe Section**: Interactive globe showing the network spread across India
+- **Testimonials Section**: Cards showcasing user testimonials with hover animations
+- **FAQ Section**: Accordion-style FAQ section for common questions
+- **CTA Section**: Call-to-action section with animated button
 
-To learn more about Next.js, take a look at the following resources:
+## Dashboard Sections
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The dashboard includes:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Users Management**: Manage platform users, permissions, and roles
+- **Trucks Management**: Track and manage truck listings
+- **Loads Management**: Monitor and manage load postings
+- **Bids Management**: Track and analyze bidding activity
+- **Statistics**: View platform analytics and performance metrics
+- **Admin Users**: Manage admin accounts and permissions
 
-## Deploy on Vercel
+## Technologies Used
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Next.js**: React framework for production
+- **TypeScript**: For type safety
+- **Tailwind CSS**: For styling
+- **Radix UI**: For accessible UI components
+- **Motion**: For animations
+- **React Hook Form**: For form management
+- **Zod**: For form validation
+- **Lucide React**: For icons
+- **Recharts**: For data visualization
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+[MIT License](LICENSE)

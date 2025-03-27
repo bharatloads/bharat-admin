@@ -4,6 +4,11 @@ import { Header } from "@/components/landing/header";
 import { Meteors } from "@/components/ui/meteors";
 import { WordRotate } from "@/components/ui/word-rotate";
 import { GlobeSection } from "@/components/sections/globe-section";
+import { FeaturesSection } from "@/components/sections/features-section";
+import { StatsSection } from "@/components/sections/stats-section";
+import { TestimonialsSection } from "@/components/sections/testimonials-section";
+import { FaqSection } from "@/components/sections/faq-section";
+import { CtaSection } from "@/components/sections/cta-section";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -44,8 +49,25 @@ export default function Home() {
           <Meteors number={30} />
         </section>
 
+        {/* Features Section */}
+        <div id="features">
+          <FeaturesSection />
+        </div>
+
+        {/* Stats Section */}
+        <StatsSection />
+
         {/* Globe Section */}
         <GlobeSection />
+
+        {/* Testimonials Section */}
+        <TestimonialsSection />
+
+        {/* FAQ Section */}
+        <FaqSection />
+
+        {/* CTA Section */}
+        <CtaSection />
       </main>
     </>
   );
