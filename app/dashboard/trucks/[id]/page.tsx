@@ -311,35 +311,33 @@ export default function TruckDetailsPage() {
             <CardDescription>Registration certificate image</CardDescription>
           </CardHeader>
           <CardContent>
-            <Dialog>
-              <DialogTrigger asChild>
-                <div className="relative aspect-video w-full cursor-pointer overflow-hidden rounded-lg border">
-                  <Image
-                    src={truck.RCImage}
-                    alt="RC Document"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              </DialogTrigger>
-              <DialogContent className="max-w-3xl">
-                <DialogHeader>
-                  <DialogTitle>RC Document</DialogTitle>
-                  <DialogDescription>
-                    Registration certificate for {truck.truckNumber}
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
-                  <Image
-                    src={truck.RCImage}
-                    alt="RC Document"
-                    fill
-                    className="object-contain"
-                  />
-                </div>
-              </DialogContent>
-            </Dialog>
-          </CardContent>
+  <Dialog>
+    <DialogTrigger asChild>
+      <div className="relative aspect-video w-full cursor-pointer overflow-hidden rounded-lg border">
+        <img
+          src={truck.RCImage}
+          alt="RC Document"
+          className="w-full h-full object-cover"
+        />
+      </div>
+    </DialogTrigger>
+    <DialogContent className="max-w-3xl">
+      <DialogHeader>
+        <DialogTitle>RC Document</DialogTitle>
+        <DialogDescription>
+          Registration certificate for {truck.truckNumber}
+        </DialogDescription>
+      </DialogHeader>
+      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
+        <img
+          src={truck.RCImage}
+          alt="RC Document"
+          className="w-full h-full object-contain"
+        />
+      </div>
+    </DialogContent>
+  </Dialog>
+</CardContent>
         </Card>
 
         {/* Bid History */}
